@@ -7,6 +7,7 @@ use leafwing_input_manager::{
 
 use crate::{
     abilities::{Ability, Loadout},
+    health::Health,
     state::GameState,
 };
 
@@ -69,6 +70,7 @@ fn spawn_player(mut commands: Commands) {
         },
         Collider::cuboid(8.0, 8.0),
         ExternalForce::default(),
+        Health(100.0),
     ));
 }
 

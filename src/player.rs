@@ -31,7 +31,6 @@ enum PlayerActions {
 pub struct Player;
 
 fn spawn_player(mut commands: Commands) {
-    info!("SPAWN");
     commands.spawn((
         Player,
         SpriteBundle {
@@ -40,6 +39,7 @@ fn spawn_player(mut commands: Commands) {
                 custom_size: Some(Vec2::splat(16.0)),
                 ..Default::default()
             },
+            transform: Transform::from_xyz(0.0, 0.0, 1.0),
             ..Default::default()
         },
         InputManagerBundle::<PlayerActions> {
@@ -64,18 +64,10 @@ fn spawn_player(mut commands: Commands) {
 }
 
 fn move_player(
-    mut players: Query<
-        (
-            &mut Damping,
-            &mut ExternalForce,
-            &ActionState<PlayerActions>,
-        ),
-        With<Player>,
-    >,
+    mut players: Query<(&mut ExternalForce, &ActionState<PlayerActions>), With<Player>>,
 ) {
     const PLAYER_MOVE_FORCE: f32 = 64.0;
-    const PLAYER_DAMPING_FORCE: f32 = 5.0;
-    for (mut damping, mut force, action) in &mut players {
+    for (mut force, action) in &mut players {
         let mut new_force = Vec2::ZERO;
         if action.pressed(PlayerActions::Left) {
             new_force.x = -1.0;

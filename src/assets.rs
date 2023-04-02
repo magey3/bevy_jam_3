@@ -15,11 +15,13 @@ impl Plugin for AssetsPlugin {
 #[reflect(Resource, Default, Debug)]
 pub struct GameAssets {
     pub bevy_icon: Handle<Image>,
+    pub tileset: Handle<Image>,
 }
 
 fn start_loading_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(GameAssets {
         bevy_icon: asset_server.load("icon.png"),
+        tileset: asset_server.load("tileset.png"),
     });
 }
 
@@ -28,7 +30,8 @@ fn on_assets_loaded(
     assets: Res<GameAssets>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    if asset_server.get_load_state(assets.bevy_icon.clone()) == LoadState::Loaded {
+    let assets = [assets.bevy_icon.id(), assets.tileset.id()];
+    if asset_server.get_group_load_state(assets) == LoadState::Loaded {
         next_state.set(GameState::Playing);
         info!("Loaded all assets");
     }

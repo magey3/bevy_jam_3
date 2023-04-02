@@ -1,22 +1,40 @@
-// Bevy code commonly triggers these lints and they may be important signals
-// about code quality. They are sometimes hard to avoid though, and the CI
-// workflow treats them as errors, so this allows them throughout the project.
-// Feel free to delete this line.
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
-use bevy::prelude::*;
+use assets::AssetsPlugin;
+use bevy::{
+    prelude::*,
+    window::{PresentMode, WindowMode},
+};
+use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
+use init::InitPlugin;
+use player::PlayerPlugin;
+use state::GlobalStatePlugin;
+
+pub mod assets;
+pub mod init;
+pub mod player;
+pub mod state;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
-        .add_startup_system(setup)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                present_mode: PresentMode::AutoNoVsync,
+                mode: WindowMode::BorderlessFullscreen,
+                title: "Temp Name".into(),
+                resizable: false,
+                ..Default::default()
+            }),
+            ..Default::default()
+        }))
+        .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(32.0))
+        .insert_resource(RapierConfiguration {
+            gravity: Vec2::ZERO,
+            ..Default::default()
+        })
+        .add_plugin(GlobalStatePlugin)
+        .add_plugin(InitPlugin)
+        .add_plugin(AssetsPlugin)
+        .add_plugin(PlayerPlugin)
         .run();
-}
-
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
-    commands.spawn(SpriteBundle {
-        texture: asset_server.load("icon.png"),
-        ..Default::default()
-    });
 }

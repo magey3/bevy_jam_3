@@ -65,7 +65,7 @@ fn spawn_player(mut commands: Commands) {
         Loadout {
             abilities: vec![Ability {
                 power: crate::abilities::Power::Teleport,
-                side_effect: crate::abilities::SideEffect::Woo,
+                side_effect: crate::abilities::SideEffect::TakeDamage,
             }],
         },
         Collider::cuboid(8.0, 8.0),

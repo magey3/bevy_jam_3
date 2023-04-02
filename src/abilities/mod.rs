@@ -2,10 +2,11 @@ use bevy::prelude::*;
 
 use crate::player::Player;
 
-use self::teleport::TeleportPowerPlugin;
+use self::{take_damage::TakeDamageSideEffectPlugin, teleport::TeleportPowerPlugin};
 
 pub struct AbilitiesPlugin;
 
+mod take_damage;
 mod teleport;
 
 #[derive(SystemSet, Clone, Debug, Default, Hash, PartialEq, Eq)]
@@ -19,7 +20,8 @@ impl Plugin for AbilitiesPlugin {
             .register_type::<Loadout>()
             .add_event::<UseAbilityEvent>()
             .add_system(test)
-            .add_plugin(TeleportPowerPlugin);
+            .add_plugin(TeleportPowerPlugin)
+            .add_plugin(TakeDamageSideEffectPlugin);
     }
 }
 
@@ -45,7 +47,7 @@ pub enum Power {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Reflect, FromReflect)]
 #[reflect(Debug)]
 pub enum SideEffect {
-    Woo,
+    TakeDamage,
 }
 
 #[derive(Clone, Debug, Reflect, FromReflect)]

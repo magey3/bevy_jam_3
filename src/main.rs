@@ -1,5 +1,6 @@
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
+use abilities::AbilitiesPlugin;
 use assets::AssetsPlugin;
 use bevy::{
     prelude::*,
@@ -11,6 +12,7 @@ use player::PlayerPlugin;
 use room::RoomPlugin;
 use state::GlobalStatePlugin;
 
+pub mod abilities;
 pub mod assets;
 pub mod init;
 pub mod player;
@@ -43,5 +45,6 @@ fn main() {
         .add_plugin(AssetsPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(RoomPlugin)
+        .add_plugin(AbilitiesPlugin)
         .run();
 }

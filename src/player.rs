@@ -5,7 +5,10 @@ use leafwing_input_manager::{
     Actionlike, InputManagerBundle,
 };
 
-use crate::state::GameState;
+use crate::{
+    abilities::{Ability, Loadout},
+    state::GameState,
+};
 
 pub struct PlayerPlugin;
 
@@ -57,6 +60,12 @@ fn spawn_player(mut commands: Commands) {
         Damping {
             linear_damping: 5.0,
             ..Default::default()
+        },
+        Loadout {
+            abilities: vec![Ability {
+                power: crate::abilities::Power::Teleport,
+                side_effect: crate::abilities::SideEffect::Woo,
+            }],
         },
         Collider::cuboid(8.0, 8.0),
         ExternalForce::default(),

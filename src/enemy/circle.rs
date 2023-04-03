@@ -22,8 +22,9 @@ impl Plugin for CirclePlugin {
             .add_startup_system(init_mesh)
             .add_systems(
                 (
-                    insert_explosion_timer,
+                    insert_explosion_timers,
                     increment_explosion_timer,
+                    animate_explosion,
                     explode.before(HandleExplosionSet),
                 )
                     .chain()
@@ -47,9 +48,12 @@ pub struct Circle;
 #[reflect(Resource, Default, Debug)]
 struct CircleMesh(pub Handle<Mesh>);
 
-#[derive(Resource, Clone, Default, Debug, Deref, DerefMut, Reflect, FromReflect)]
+#[derive(Resource, Clone, Default, Debug, Reflect, FromReflect)]
 #[reflect(Resource, Default, Debug)]
-struct CircleMaterial(pub Handle<ColorMaterial>);
+struct CircleMaterial {
+    pub default: Handle<ColorMaterial>,
+    pub highlight: Handle<ColorMaterial>,
+}
 
 fn init_mesh(
     mut commands: Commands,
@@ -58,10 +62,16 @@ fn init_mesh(
     mut spawn: EventWriter<SpawnEnemyEvent>,
 ) {
     commands.insert_resource(CircleMesh(meshes.add(shape::Circle::new(8.0).into())));
-    commands.insert_resource(CircleMaterial(materials.add(ColorMaterial {
-        color: Color::RED,
-        ..Default::default()
-    })));
+    commands.insert_resource(CircleMaterial {
+        default: materials.add(ColorMaterial {
+            color: Color::RED,
+            ..Default::default()
+        }),
+        highlight: materials.add(ColorMaterial {
+            color: Color::WHITE,
+            ..Default::default()
+        }),
+    });
     for y in -3..=3 {
         spawn.send(SpawnEnemyEvent {
             enemy: Enemy::Circle,
@@ -84,7 +94,7 @@ fn spawn_circle(
                 ColorMesh2dBundle {
                     transform: Transform::from_translation(translation.extend(1.0)),
                     mesh: circle_mesh.0.clone().into(),
-                    material: circle_material.0.clone(),
+                    material: circle_material.default.clone(),
                     ..Default::default()
                 },
                 RigidBody::Dynamic,
@@ -121,9 +131,9 @@ fn follow_player(
 
 #[derive(Component, Clone, Default, Debug, Deref, DerefMut, Reflect, FromReflect)]
 #[reflect(Component, Default, Debug)]
-pub struct CircleExplosionTimer(pub Timer);
+struct CircleExplosionTimer(pub Timer);
 
-fn insert_explosion_timer(
+fn insert_explosion_timers(
     mut commands: Commands,
     circles: Query<(Entity, &Transform), (Without<CircleExplosionTimer>, With<Circle>)>,
     player: Query<&Transform, With<Player>>,
@@ -135,12 +145,13 @@ fn insert_explosion_timer(
         let circle_pos = circle_transform.translation.truncate();
 
         if player_pos.distance(circle_pos) < CIRCLE_EXPLODE_DISTANCE {
-            commands
-                .entity(circle_entity)
-                .insert(CircleExplosionTimer(Timer::new(
-                    Duration::from_secs_f64(1.0),
-                    TimerMode::Once,
-                )));
+            commands.entity(circle_entity).insert((
+                CircleExplosionTimer(Timer::new(Duration::from_secs_f64(1.0), TimerMode::Once)),
+                CircleAnimationTimer(Timer::new(
+                    Duration::from_secs_f64(0.1),
+                    TimerMode::Repeating,
+                )),
+            ));
         }
     }
 }
@@ -168,5 +179,26 @@ fn explode(
             damage: 50.0,
         });
         commands.entity(circle_entity).despawn_recursive();
+    }
+}
+
+#[derive(Component, Clone, Default, Deref, DerefMut, Debug, Reflect, FromReflect)]
+#[reflect(Component, Default, Debug)]
+struct CircleAnimationTimer(pub Timer);
+
+fn animate_explosion(
+    mut circles: Query<(&mut Handle<ColorMaterial>, &mut CircleAnimationTimer)>,
+    materials: Res<CircleMaterial>,
+    time: Res<Time>,
+) {
+    for (mut material, mut timer) in &mut circles {
+        if !timer.tick(time.delta()).just_finished() {
+            continue;
+        }
+        if material.id() == materials.default.id() {
+            *material = materials.highlight.clone()
+        } else {
+            *material = materials.default.clone()
+        }
     }
 }

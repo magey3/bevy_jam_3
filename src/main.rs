@@ -11,6 +11,7 @@ use enemy::EnemyPlugin;
 use explosion::ExplosionPlugin;
 use health::HealthPlugin;
 use init::InitPlugin;
+use mouse_position::MousePositionPlugin;
 use player::PlayerPlugin;
 use room::RoomPlugin;
 use state::GlobalStatePlugin;
@@ -21,6 +22,7 @@ pub mod enemy;
 pub mod explosion;
 pub mod health;
 pub mod init;
+pub mod mouse_position;
 pub mod player;
 pub mod room;
 pub mod state;
@@ -55,5 +57,6 @@ fn main() {
         .add_plugin(HealthPlugin)
         .add_plugin(EnemyPlugin)
         .add_plugin(ExplosionPlugin)
+        .add_plugin(MousePositionPlugin)
         .run();
 }

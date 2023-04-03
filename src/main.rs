@@ -7,6 +7,7 @@ use bevy::{
     window::{PresentMode, WindowMode},
 };
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
+use enemy::EnemyPlugin;
 use health::HealthPlugin;
 use init::InitPlugin;
 use player::PlayerPlugin;
@@ -15,6 +16,7 @@ use state::GlobalStatePlugin;
 
 pub mod abilities;
 pub mod assets;
+pub mod enemy;
 pub mod health;
 pub mod init;
 pub mod player;
@@ -49,5 +51,6 @@ fn main() {
         .add_plugin(RoomPlugin)
         .add_plugin(AbilitiesPlugin)
         .add_plugin(HealthPlugin)
+        .add_plugin(EnemyPlugin)
         .run();
 }

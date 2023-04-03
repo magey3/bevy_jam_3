@@ -1,9 +1,15 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
     Collider, Damping, ExternalForce, ExternalImpulse, LockedAxes, RigidBody, Velocity,
 };
 
-use crate::{health::Health, player::Player};
+use crate::{
+    explosion::{ExplosionEvent, HandleExplosionSet},
+    health::Health,
+    player::Player,
+};
 
 use super::{Enemy, EnemySet, SpawnEnemyEvent};
 
@@ -14,11 +20,24 @@ impl Plugin for CirclePlugin {
         app.register_type::<Circle>()
             .register_type::<CircleMesh>()
             .add_startup_system(init_mesh)
-            .add_systems((spawn_circle, follow_player).in_set(EnemySet::SpawnEnemies));
+            .add_systems(
+                (
+                    insert_explosion_timer,
+                    increment_explosion_timer,
+                    explode.before(HandleExplosionSet),
+                )
+                    .chain()
+                    .in_set(EnemySet::Attack),
+            )
+            .add_systems((
+                spawn_circle.in_set(EnemySet::SpawnEnemies),
+                follow_player.in_set(EnemySet::AI),
+            ));
     }
 }
 
 const CIRCLE_MOVE_FORCE: f32 = 32.0;
+const CIRCLE_EXPLODE_DISTANCE: f32 = 32.0;
 
 #[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]
 #[reflect(Component, Default, Debug)]
@@ -89,7 +108,7 @@ fn follow_player(
     player: Query<&Transform, With<Player>>,
 ) {
     for (mut circle_force, circle_transform) in &mut circles {
-        let player_transform = player.single();
+        let Ok(player_transform) = player.get_single() else { return; };
 
         let player_pos = player_transform.translation.truncate();
         let circle_pos = circle_transform.translation.truncate();
@@ -97,5 +116,57 @@ fn follow_player(
         let dir = (player_pos - circle_pos).normalize_or_zero();
 
         circle_force.force = dir * CIRCLE_MOVE_FORCE;
+    }
+}
+
+#[derive(Component, Clone, Default, Debug, Deref, DerefMut, Reflect, FromReflect)]
+#[reflect(Component, Default, Debug)]
+pub struct CircleExplosionTimer(pub Timer);
+
+fn insert_explosion_timer(
+    mut commands: Commands,
+    circles: Query<(Entity, &Transform), (Without<CircleExplosionTimer>, With<Circle>)>,
+    player: Query<&Transform, With<Player>>,
+) {
+    for (circle_entity, circle_transform) in &circles {
+        let Ok(player_transform) = player.get_single() else { return; };
+
+        let player_pos = player_transform.translation.truncate();
+        let circle_pos = circle_transform.translation.truncate();
+
+        if player_pos.distance(circle_pos) < CIRCLE_EXPLODE_DISTANCE {
+            commands
+                .entity(circle_entity)
+                .insert(CircleExplosionTimer(Timer::new(
+                    Duration::from_secs_f64(1.0),
+                    TimerMode::Once,
+                )));
+        }
+    }
+}
+
+fn increment_explosion_timer(mut timers: Query<&mut CircleExplosionTimer>, time: Res<Time>) {
+    for mut timer in &mut timers {
+        timer.tick(time.delta());
+    }
+}
+
+fn explode(
+    mut commands: Commands,
+    circles: Query<(Entity, &Transform, &CircleExplosionTimer)>,
+    mut explosion_events: EventWriter<ExplosionEvent>,
+) {
+    for (circle_entity, circle_transform, circle_timer) in &circles {
+        if !circle_timer.finished() {
+            continue;
+        }
+
+        explosion_events.send(ExplosionEvent {
+            position: circle_transform.translation.truncate(),
+            range: 100.0,
+            force: 200.0,
+            damage: 50.0,
+        });
+        commands.entity(circle_entity).despawn_recursive();
     }
 }

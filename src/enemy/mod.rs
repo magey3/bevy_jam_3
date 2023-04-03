@@ -26,4 +26,6 @@ pub struct SpawnEnemyEvent {
 #[derive(SystemSet, Clone, Debug, Hash, PartialEq, Eq)]
 pub enum EnemySet {
     SpawnEnemies,
+    AI,
+    Attack,
 }

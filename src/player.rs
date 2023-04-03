@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, Damping, ExternalForce, LockedAxes, RigidBody, Velocity};
+use bevy_rapier2d::prelude::{
+    Collider, Damping, ExternalForce, ExternalImpulse, LockedAxes, RigidBody, Velocity,
+};
 use leafwing_input_manager::{
     prelude::{ActionState, InputManagerPlugin, InputMap},
     Actionlike, InputManagerBundle,
@@ -70,6 +72,7 @@ fn spawn_player(mut commands: Commands) {
         },
         Collider::cuboid(8.0, 8.0),
         ExternalForce::default(),
+        ExternalImpulse::default(),
         Health(100.0),
     ));
 }

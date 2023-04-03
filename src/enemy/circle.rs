@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, Damping, ExternalForce, LockedAxes, RigidBody, Velocity};
+use bevy_rapier2d::prelude::{
+    Collider, Damping, ExternalForce, ExternalImpulse, LockedAxes, RigidBody, Velocity,
+};
 
 use crate::{health::Health, player::Player};
 
@@ -71,6 +73,7 @@ fn spawn_circle(
                 Velocity::default(),
                 Collider::ball(8.0),
                 ExternalForce::default(),
+                ExternalImpulse::default(),
                 Damping {
                     linear_damping: 5.0,
                     ..Default::default()

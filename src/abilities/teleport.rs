@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::player::Player;
+use crate::{mouse_position::MousePosition, player::Player};
 
 use super::{AbilitySet, Loadout, Power, UseAbilityEvent};
 
@@ -12,18 +12,24 @@ impl Plugin for TeleportPowerPlugin {
     }
 }
 
+const TELEPORT_DISTANCE: f32 = 64.0;
+
 fn handle_teleport(
     mut player_transforms: Query<&mut Transform, With<Player>>,
     loadouts: Query<&Loadout>,
     mut ability_events: EventReader<UseAbilityEvent>,
+    mouse_position: Res<MousePosition>,
 ) {
     for ability in ability_events.iter() {
         let loadout = loadouts.get(ability.loadout).unwrap();
 
         if loadout.abilities[ability.ability].power == Power::Teleport {
             for mut player_transform in &mut player_transforms {
-                // TODO: Make this follow the mouse
-                player_transform.translation += Vec3::new(16.0, 16.0, 0.0);
+                let player_position = player_transform.translation.truncate();
+                let delta =
+                    (**mouse_position - player_position).clamp_length_max(TELEPORT_DISTANCE);
+
+                player_transform.translation += delta.extend(0.0);
             }
         }
     }

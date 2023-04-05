@@ -2,10 +2,14 @@ use bevy::prelude::*;
 
 use crate::player::Player;
 
-use self::{take_damage::TakeDamageSideEffectPlugin, teleport::TeleportPowerPlugin};
+use self::{
+    cooldown::CooldownPlugin, take_damage::TakeDamageSideEffectPlugin,
+    teleport::TeleportPowerPlugin,
+};
 
 pub struct AbilitiesPlugin;
 
+pub mod cooldown;
 mod take_damage;
 mod teleport;
 
@@ -16,10 +20,10 @@ impl Plugin for AbilitiesPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Power>()
             .register_type::<SideEffect>()
-            .register_type::<Ability>()
             .register_type::<Loadout>()
             .add_event::<UseAbilityEvent>()
             .add_system(test)
+            .add_plugin(CooldownPlugin)
             .add_plugin(TeleportPowerPlugin)
             .add_plugin(TakeDamageSideEffectPlugin);
     }
@@ -38,29 +42,24 @@ fn test(
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Reflect, FromReflect)]
-#[reflect(Debug)]
+#[derive(Component, Clone, Debug, Default, PartialEq, Eq, Hash, Reflect, FromReflect)]
+#[reflect(Component, Debug)]
 pub enum Power {
+    #[default]
     Teleport,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Reflect, FromReflect)]
-#[reflect(Debug)]
+#[derive(Component, Clone, Debug, Default, PartialEq, Eq, Hash, Reflect, FromReflect)]
+#[reflect(Component, Debug)]
 pub enum SideEffect {
+    #[default]
     TakeDamage,
-}
-
-#[derive(Clone, Debug, Reflect, FromReflect)]
-#[reflect(Debug)]
-pub struct Ability {
-    pub power: Power,
-    pub side_effect: SideEffect,
 }
 
 #[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]
 #[reflect(Component, Default, Debug)]
 pub struct Loadout {
-    pub abilities: Vec<Ability>,
+    pub abilities: Vec<Entity>,
 }
 
 #[derive(Clone, Debug)]

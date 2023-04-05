@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{health::Health, player::Player};
 
-use super::{AbilitySet, Loadout, SideEffect, UseAbilityEvent};
+use super::{cooldown::AbilityCooldown, AbilitySet, Loadout, SideEffect, UseAbilityEvent};
 
 pub struct TakeDamageSideEffectPlugin;
 
@@ -16,15 +16,22 @@ fn take_damage(
     mut player_healths: Query<&mut Health, With<Player>>,
     loadouts: Query<&Loadout>,
     mut ability_events: EventReader<UseAbilityEvent>,
+    side_effects: Query<&SideEffect, Without<AbilityCooldown>>,
 ) {
     for ability in ability_events.iter() {
-        let loadout = loadouts.get(ability.loadout).unwrap();
+        let Ok(loadout) = loadouts.get(ability.loadout) else {
+            warn!("Invalid loadout in ability event");
+            continue;
+        };
 
-        if loadout.abilities[ability.ability].side_effect == SideEffect::TakeDamage {
-            for mut health in &mut player_healths {
-                health.0 -= 10.0;
-                info!("TOOK DAMAGE {health:?}");
-            }
+        let ability_entity = loadout.abilities[ability.ability];
+        let Ok(side_effect) = side_effects.get(ability_entity) else { continue; };
+        if *side_effect != SideEffect::TakeDamage {
+            continue;
+        }
+
+        for mut health in &mut player_healths {
+            health.0 -= 10.0;
         }
     }
 }

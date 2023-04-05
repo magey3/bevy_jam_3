@@ -8,7 +8,7 @@ use leafwing_input_manager::{
 };
 
 use crate::{
-    abilities::{Ability, Loadout},
+    abilities::{cooldown::AbilityCooldownTime, Loadout, Power, SideEffect},
     health::Health,
     state::GameState,
 };
@@ -37,6 +37,13 @@ enum PlayerActions {
 pub struct Player;
 
 fn spawn_player(mut commands: Commands) {
+    let ability = commands
+        .spawn((
+            Power::Teleport,
+            SideEffect::TakeDamage,
+            AbilityCooldownTime(1.0),
+        ))
+        .id();
     commands.spawn((
         Player,
         SpriteBundle {
@@ -65,10 +72,7 @@ fn spawn_player(mut commands: Commands) {
             ..Default::default()
         },
         Loadout {
-            abilities: vec![Ability {
-                power: crate::abilities::Power::Teleport,
-                side_effect: crate::abilities::SideEffect::TakeDamage,
-            }],
+            abilities: vec![ability],
         },
         Collider::cuboid(8.0, 8.0),
         ExternalForce::default(),

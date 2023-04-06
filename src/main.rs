@@ -7,10 +7,12 @@ use bevy::{
     window::{PresentMode, WindowMode},
 };
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
+use bevy_turborand::RngPlugin;
 use enemy::EnemyPlugin;
 use explosion::ExplosionPlugin;
 use health::HealthPlugin;
 use init::InitPlugin;
+use lifetime::LifetimePlugin;
 use mouse_position::MousePositionPlugin;
 use player::PlayerPlugin;
 use room::RoomPlugin;
@@ -22,6 +24,7 @@ pub mod enemy;
 pub mod explosion;
 pub mod health;
 pub mod init;
+pub mod lifetime;
 pub mod mouse_position;
 pub mod player;
 pub mod room;
@@ -49,6 +52,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugin(GlobalStatePlugin)
+        .add_plugin(RngPlugin::default())
         .add_plugin(InitPlugin)
         .add_plugin(AssetsPlugin)
         .add_plugin(PlayerPlugin)
@@ -58,5 +62,6 @@ fn main() {
         .add_plugin(EnemyPlugin)
         .add_plugin(ExplosionPlugin)
         .add_plugin(MousePositionPlugin)
+        .add_plugin(LifetimePlugin)
         .run();
 }

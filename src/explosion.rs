@@ -1,7 +1,10 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::ExternalImpulse;
+use bevy_turborand::{DelegatedRng, GlobalRng};
 
-use crate::health::Health;
+use crate::{health::Health, lifetime::Lifetime};
 
 pub struct ExplosionPlugin;
 
@@ -10,7 +13,13 @@ impl Plugin for ExplosionPlugin {
         app.register_type::<ExplosionEvent>()
             .add_event::<ExplosionEvent>()
             .add_systems(
-                (apply_explosion_forces, apply_explostion_damage).in_set(HandleExplosionSet),
+                (
+                    apply_explosion_forces,
+                    apply_explostion_damage,
+                    spawn_particles,
+                    move_particles,
+                )
+                    .in_set(HandleExplosionSet),
             );
     }
 }
@@ -66,5 +75,49 @@ fn apply_explostion_damage(
 
             **health -= explosion.damage * object_distance_normalized;
         }
+    }
+}
+
+#[derive(Clone, Default, Debug, Reflect, FromReflect, Component)]
+struct ExplosionParticle {
+    pub velocity: Vec2,
+}
+
+fn spawn_particles(
+    mut commands: Commands,
+    mut explosion_events: EventReader<ExplosionEvent>,
+    mut global_rng: ResMut<GlobalRng>,
+) {
+    for explosion in explosion_events.iter() {
+        const STEPS: u32 = 64;
+        const RANGE: f32 = 2.0;
+        const VELOCITY: f32 = 256.0;
+        const MAX_SIZE: f32 = 4.0;
+        for i in 0..STEPS {
+            let angle = (360.0 / STEPS as f32 * i as f32 + global_rng.f32_normalized() * RANGE)
+                .to_radians();
+            let velocity =
+                Vec2::from_angle(angle) * (VELOCITY + 64.0 * global_rng.f32_normalized());
+
+            commands.spawn((
+                ExplosionParticle { velocity },
+                SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::splat(global_rng.f32() * MAX_SIZE)),
+                        color: Color::ORANGE,
+                        ..Default::default()
+                    },
+                    transform: Transform::from_translation(explosion.position.extend(2.0)),
+                    ..Default::default()
+                },
+                Lifetime::new(Duration::from_millis(200)),
+            ));
+        }
+    }
+}
+
+fn move_particles(mut particles: Query<(&mut Transform, &ExplosionParticle)>, time: Res<Time>) {
+    for (mut particle_transform, particle) in &mut particles {
+        particle_transform.translation += (particle.velocity * time.delta_seconds()).extend(0.0);
     }
 }

@@ -45,3 +45,4 @@ features = [
 bevy_ecs_tilemap = "0.10"
 bevy_rapier2d = "0.21"
 leafwing-input-manager = "0.9"
+bevy_turborand = "0.5"

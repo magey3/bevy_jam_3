@@ -15,7 +15,10 @@ impl Plugin for RoomPlugin {
             .register_type::<RoomClearedEvent>()
             .add_event::<SpawnRoomEvent>()
             .add_event::<RoomClearedEvent>()
-            .add_systems((spawn_rooms, check_room_cleared).in_set(OnUpdate(GameState::Playing)))
+            .add_systems(
+                (spawn_rooms, check_room_cleared, on_room_cleared)
+                    .in_set(OnUpdate(GameState::Playing)),
+            )
             .add_system(test.in_schedule(OnEnter(GameState::Playing)));
     }
 }
@@ -114,4 +117,17 @@ fn check_room_cleared(
         room_clear_events.send_default();
     }
     *last_enemy_count = enemy_count;
+}
+
+fn on_room_cleared(
+    mut room_clear_events: EventReader<RoomClearedEvent>,
+    mut room_spawn_events: EventWriter<SpawnRoomEvent>,
+) {
+    for _ in room_clear_events.iter() {
+        room_spawn_events.send(SpawnRoomEvent {
+            room: Room {
+                enemies: vec![Enemy::Circle, Enemy::Circle],
+            },
+        });
+    }
 }

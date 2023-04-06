@@ -17,6 +17,7 @@ use lifetime::LifetimePlugin;
 use mouse_position::MousePositionPlugin;
 use player::PlayerPlugin;
 use room::RoomPlugin;
+use room_manager::RoomManagerPlugin;
 use state::GlobalStatePlugin;
 
 pub mod abilities;
@@ -30,6 +31,7 @@ pub mod lifetime;
 pub mod mouse_position;
 pub mod player;
 pub mod room;
+pub mod room_manager;
 pub mod state;
 
 fn main() {
@@ -66,5 +68,6 @@ fn main() {
         .add_plugin(MousePositionPlugin)
         .add_plugin(LifetimePlugin)
         .add_plugin(HealthBarPlugin)
+        .add_plugin(RoomManagerPlugin)
         .run();
 }

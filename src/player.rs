@@ -9,7 +9,7 @@ use leafwing_input_manager::{
 
 use crate::{
     abilities::{cooldown::AbilityCooldownTime, Loadout, Power, SideEffect},
-    health::Health,
+    health::{Health, MaxHealth},
     state::GameState,
 };
 
@@ -78,6 +78,7 @@ fn spawn_player(mut commands: Commands) {
         ExternalForce::default(),
         ExternalImpulse::default(),
         Health(100.0),
+        MaxHealth(100.0),
     ));
 }
 

@@ -11,6 +11,7 @@ use bevy_turborand::RngPlugin;
 use enemy::EnemyPlugin;
 use explosion::ExplosionPlugin;
 use health::HealthPlugin;
+use healthbar::HealthBarPlugin;
 use init::InitPlugin;
 use lifetime::LifetimePlugin;
 use mouse_position::MousePositionPlugin;
@@ -23,6 +24,7 @@ pub mod assets;
 pub mod enemy;
 pub mod explosion;
 pub mod health;
+pub mod healthbar;
 pub mod init;
 pub mod lifetime;
 pub mod mouse_position;
@@ -63,5 +65,6 @@ fn main() {
         .add_plugin(ExplosionPlugin)
         .add_plugin(MousePositionPlugin)
         .add_plugin(LifetimePlugin)
+        .add_plugin(HealthBarPlugin)
         .run();
 }

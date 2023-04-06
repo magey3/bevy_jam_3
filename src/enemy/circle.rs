@@ -7,7 +7,7 @@ use bevy_rapier2d::prelude::{
 
 use crate::{
     explosion::{ExplosionEvent, HandleExplosionSet},
-    health::Health,
+    health::{Health, MaxHealth},
     player::Player,
 };
 
@@ -108,6 +108,7 @@ fn spawn_circle(
                     ..Default::default()
                 },
                 Health(100.0),
+                MaxHealth(100.0),
             ));
         }
     }

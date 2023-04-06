@@ -8,11 +8,13 @@ pub mod circle;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<SpawnEnemyEvent>().add_plugin(CirclePlugin);
+        app.register_type::<Enemy>()
+            .add_event::<SpawnEnemyEvent>()
+            .add_plugin(CirclePlugin);
     }
 }
 
-#[derive(Component, Clone, Debug, PartialEq, Eq)]
+#[derive(Component, Copy, Clone, Debug, PartialEq, Eq, Reflect, FromReflect)]
 pub enum Enemy {
     Circle,
 }

@@ -59,7 +59,6 @@ fn init_mesh(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut spawn: EventWriter<SpawnEnemyEvent>,
 ) {
     commands.insert_resource(CircleMesh(meshes.add(shape::Circle::new(8.0).into())));
     commands.insert_resource(CircleMaterial {
@@ -72,12 +71,6 @@ fn init_mesh(
             ..Default::default()
         }),
     });
-    for y in -3..=3 {
-        spawn.send(SpawnEnemyEvent {
-            enemy: Enemy::Circle,
-            translation: Vec2::new(64.0, 16.0 * y as f32),
-        });
-    }
 }
 
 fn spawn_circle(

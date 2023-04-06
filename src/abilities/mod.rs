@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::player::Player;
-
 use self::{
     cooldown::CooldownPlugin, take_damage::TakeDamageSideEffectPlugin,
     teleport::TeleportPowerPlugin,
@@ -22,23 +20,9 @@ impl Plugin for AbilitiesPlugin {
             .register_type::<SideEffect>()
             .register_type::<Loadout>()
             .add_event::<UseAbilityEvent>()
-            .add_system(test)
             .add_plugin(CooldownPlugin)
             .add_plugin(TeleportPowerPlugin)
             .add_plugin(TakeDamageSideEffectPlugin);
-    }
-}
-
-fn test(
-    keys: Res<Input<KeyCode>>,
-    mut use_ability: EventWriter<UseAbilityEvent>,
-    player: Query<Entity, With<Player>>,
-) {
-    if keys.just_pressed(KeyCode::R) {
-        use_ability.send(UseAbilityEvent {
-            loadout: player.single(),
-            ability: 0,
-        });
     }
 }
 

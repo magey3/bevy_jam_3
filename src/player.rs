@@ -8,7 +8,7 @@ use leafwing_input_manager::{
 };
 
 use crate::{
-    abilities::{cooldown::AbilityCooldownTime, Loadout, Power, SideEffect},
+    abilities::{cooldown::AbilityCooldownTime, Loadout, Power, SideEffect, UseAbilityEvent},
     health::{Health, MaxHealth},
     state::GameState,
 };
@@ -19,7 +19,11 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
             .add_plugin(InputManagerPlugin::<PlayerActions>::default())
-            .add_system(move_player)
+            .add_systems(
+                (select_ability, use_ability, move_player)
+                    .chain()
+                    .in_set(OnUpdate(GameState::Playing)),
+            )
             .add_system(spawn_player.in_schedule(OnEnter(GameState::Playing)));
     }
 }
@@ -30,6 +34,11 @@ enum PlayerActions {
     Right,
     Up,
     Down,
+    Ability1,
+    Ability2,
+    Ability3,
+    Ability4,
+    UseAbility,
 }
 
 #[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]
@@ -44,6 +53,19 @@ fn spawn_player(mut commands: Commands) {
             AbilityCooldownTime(1.0),
         ))
         .id();
+    let mut input_map = InputMap::new([
+        (KeyCode::A, PlayerActions::Left),
+        (KeyCode::S, PlayerActions::Down),
+        (KeyCode::D, PlayerActions::Right),
+        (KeyCode::W, PlayerActions::Up),
+        (KeyCode::Key1, PlayerActions::Ability1),
+        (KeyCode::Key2, PlayerActions::Ability2),
+        (KeyCode::Key3, PlayerActions::Ability3),
+        (KeyCode::Key4, PlayerActions::Ability4),
+    ]);
+
+    input_map.insert(MouseButton::Left, PlayerActions::UseAbility);
+
     commands.spawn((
         Player,
         SpriteBundle {
@@ -56,12 +78,7 @@ fn spawn_player(mut commands: Commands) {
             ..Default::default()
         },
         InputManagerBundle::<PlayerActions> {
-            input_map: InputMap::new([
-                (KeyCode::A, PlayerActions::Left),
-                (KeyCode::S, PlayerActions::Down),
-                (KeyCode::D, PlayerActions::Right),
-                (KeyCode::W, PlayerActions::Up),
-            ]),
+            input_map,
             ..Default::default()
         },
         RigidBody::Dynamic,
@@ -79,6 +96,7 @@ fn spawn_player(mut commands: Commands) {
         ExternalImpulse::default(),
         Health(100.0),
         MaxHealth(100.0),
+        CurrentAbility(0),
     ));
 }
 
@@ -100,5 +118,42 @@ fn move_player(
         }
 
         force.force = new_force.normalize_or_zero() * PLAYER_MOVE_FORCE;
+    }
+}
+
+#[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]
+#[reflect(Component, Default, Debug)]
+pub struct CurrentAbility(usize);
+
+fn select_ability(
+    mut players: Query<(&mut CurrentAbility, &ActionState<PlayerActions>), With<Player>>,
+) {
+    for (mut current_ability, action) in &mut players {
+        if action.just_pressed(PlayerActions::Ability1) {
+            current_ability.0 = 0;
+        } else if action.just_pressed(PlayerActions::Ability2) {
+            current_ability.0 = 1;
+        } else if action.just_pressed(PlayerActions::Ability3) {
+            current_ability.0 = 2;
+        } else if action.just_pressed(PlayerActions::Ability4) {
+            current_ability.0 = 3;
+        }
+    }
+}
+
+fn use_ability(
+    players: Query<
+        (Entity, &CurrentAbility, &ActionState<PlayerActions>),
+        (With<Player>, With<Loadout>),
+    >,
+    mut use_ability: EventWriter<UseAbilityEvent>,
+) {
+    for (player_entity, current_ability, action) in &players {
+        if action.just_pressed(PlayerActions::UseAbility) {
+            use_ability.send(UseAbilityEvent {
+                loadout: player_entity,
+                ability: current_ability.0,
+            });
+        }
     }
 }

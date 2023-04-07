@@ -137,7 +137,7 @@ fn move_player(
 
 #[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]
 #[reflect(Component, Default, Debug)]
-pub struct CurrentAbility(usize);
+pub struct CurrentAbility(pub usize);
 
 fn select_ability(
     mut players: Query<(&mut CurrentAbility, &ActionState<PlayerActions>), With<Player>>,

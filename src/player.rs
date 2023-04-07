@@ -67,6 +67,13 @@ fn spawn_player(mut commands: Commands) {
             AbilityCooldownTime(1.0),
         ))
         .id();
+    let ability4 = commands
+        .spawn((
+            Power::Shotgun,
+            SideEffect::TakeDamage,
+            AbilityCooldownTime(0.1),
+        ))
+        .id();
     let mut input_map = InputMap::new([
         (KeyCode::A, PlayerActions::Left),
         (KeyCode::S, PlayerActions::Down),
@@ -103,7 +110,7 @@ fn spawn_player(mut commands: Commands) {
             ..Default::default()
         },
         Loadout {
-            abilities: vec![ability, ability2, ability3],
+            abilities: vec![ability, ability2, ability3, ability4],
         },
         Collider::cuboid(8.0, 8.0),
         ExternalForce::default(),

@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 
 use self::{
-    cooldown::CooldownPlugin, take_damage::TakeDamageSideEffectPlugin,
+    cooldown::CooldownPlugin, fireball::FireballPlugin, take_damage::TakeDamageSideEffectPlugin,
     teleport::TeleportPowerPlugin,
 };
 
 pub struct AbilitiesPlugin;
 
 pub mod cooldown;
+mod fireball;
 mod take_damage;
 mod teleport;
 
@@ -22,6 +23,7 @@ impl Plugin for AbilitiesPlugin {
             .add_event::<UseAbilityEvent>()
             .add_plugin(CooldownPlugin)
             .add_plugin(TeleportPowerPlugin)
+            .add_plugin(FireballPlugin)
             .add_plugin(TakeDamageSideEffectPlugin);
     }
 }
@@ -31,6 +33,7 @@ impl Plugin for AbilitiesPlugin {
 pub enum Power {
     #[default]
     Teleport,
+    Fireball,
 }
 
 #[derive(Component, Clone, Debug, Default, PartialEq, Eq, Hash, Reflect, FromReflect)]

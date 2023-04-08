@@ -13,12 +13,12 @@ use crate::{
 
 use super::{Enemy, EnemySet, SpawnEnemyEvent};
 
-pub(super) struct CirclePlugin;
+pub(super) struct BombPlugin;
 
-impl Plugin for CirclePlugin {
+impl Plugin for BombPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Circle>()
-            .register_type::<CircleMesh>()
+        app.register_type::<Bomb>()
+            .register_type::<BombMesh>()
             .add_startup_system(init_mesh)
             .add_systems(
                 (
@@ -31,7 +31,7 @@ impl Plugin for CirclePlugin {
                     .in_set(EnemySet::Attack),
             )
             .add_systems((
-                spawn_circle.in_set(EnemySet::SpawnEnemies),
+                spawn_bomb.in_set(EnemySet::SpawnEnemies),
                 follow_player.in_set(EnemySet::AI),
             ));
     }
@@ -42,15 +42,15 @@ const CIRCLE_EXPLODE_DISTANCE: f32 = 32.0;
 
 #[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]
 #[reflect(Component, Default, Debug)]
-pub struct Circle;
+pub struct Bomb;
 
 #[derive(Resource, Clone, Default, Debug, Deref, DerefMut, Reflect, FromReflect)]
 #[reflect(Resource, Default, Debug)]
-struct CircleMesh(pub Handle<Mesh>);
+struct BombMesh(pub Handle<Mesh>);
 
 #[derive(Resource, Clone, Default, Debug, Reflect, FromReflect)]
 #[reflect(Resource, Default, Debug)]
-struct CircleMaterial {
+struct BombMaterial {
     pub default: Handle<ColorMaterial>,
     pub highlight: Handle<ColorMaterial>,
 }
@@ -60,8 +60,8 @@ fn init_mesh(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    commands.insert_resource(CircleMesh(meshes.add(shape::Circle::new(8.0).into())));
-    commands.insert_resource(CircleMaterial {
+    commands.insert_resource(BombMesh(meshes.add(shape::Circle::new(8.0).into())));
+    commands.insert_resource(BombMaterial {
         default: materials.add(ColorMaterial {
             color: Color::RED,
             ..Default::default()
@@ -73,17 +73,17 @@ fn init_mesh(
     });
 }
 
-fn spawn_circle(
+fn spawn_bomb(
     mut commands: Commands,
     mut spawn_enemy_events: EventReader<SpawnEnemyEvent>,
-    circle_mesh: Res<CircleMesh>,
-    circle_material: Res<CircleMaterial>,
+    circle_mesh: Res<BombMesh>,
+    circle_material: Res<BombMaterial>,
 ) {
     for SpawnEnemyEvent { enemy, translation } in spawn_enemy_events.iter() {
-        if *enemy == Enemy::Circle {
+        if *enemy == Enemy::Bomb {
             commands.spawn((
-                Enemy::Circle,
-                Circle,
+                Enemy::Bomb,
+                Bomb,
                 ColorMesh2dBundle {
                     transform: Transform::from_translation(translation.extend(1.0)),
                     mesh: circle_mesh.0.clone().into(),
@@ -108,7 +108,7 @@ fn spawn_circle(
 }
 
 fn follow_player(
-    mut circles: Query<(&mut ExternalForce, &Transform), With<Circle>>,
+    mut circles: Query<(&mut ExternalForce, &Transform), With<Bomb>>,
     player: Query<&Transform, With<Player>>,
 ) {
     for (mut circle_force, circle_transform) in &mut circles {
@@ -129,7 +129,7 @@ struct CircleExplosionTimer(pub Timer);
 
 fn insert_explosion_timers(
     mut commands: Commands,
-    circles: Query<(Entity, &Transform), (Without<CircleExplosionTimer>, With<Circle>)>,
+    circles: Query<(Entity, &Transform), (Without<CircleExplosionTimer>, With<Bomb>)>,
     player: Query<&Transform, With<Player>>,
 ) {
     for (circle_entity, circle_transform) in &circles {
@@ -141,7 +141,7 @@ fn insert_explosion_timers(
         if player_pos.distance(circle_pos) < CIRCLE_EXPLODE_DISTANCE {
             commands.entity(circle_entity).insert((
                 CircleExplosionTimer(Timer::new(Duration::from_secs_f64(1.0), TimerMode::Once)),
-                CircleAnimationTimer(Timer::new(
+                BombAnimationTimer(Timer::new(
                     Duration::from_secs_f64(0.1),
                     TimerMode::Repeating,
                 )),
@@ -178,11 +178,11 @@ fn explode(
 
 #[derive(Component, Clone, Default, Deref, DerefMut, Debug, Reflect, FromReflect)]
 #[reflect(Component, Default, Debug)]
-struct CircleAnimationTimer(pub Timer);
+struct BombAnimationTimer(pub Timer);
 
 fn animate_explosion(
-    mut circles: Query<(&mut Handle<ColorMaterial>, &mut CircleAnimationTimer)>,
-    materials: Res<CircleMaterial>,
+    mut circles: Query<(&mut Handle<ColorMaterial>, &mut BombAnimationTimer)>,
+    materials: Res<BombMaterial>,
     time: Res<Time>,
 ) {
     for (mut material, mut timer) in &mut circles {

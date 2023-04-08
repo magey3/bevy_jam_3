@@ -2,24 +2,24 @@ use bevy::prelude::*;
 
 use crate::health::DeathEvent;
 
-use self::circle::CirclePlugin;
+use self::bomb::BombPlugin;
 
 pub struct EnemyPlugin;
 
-pub mod circle;
+pub mod bomb;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Enemy>()
             .add_event::<SpawnEnemyEvent>()
-            .add_plugin(CirclePlugin)
+            .add_plugin(BombPlugin)
             .add_system(on_enemy_death.in_set(EnemySet::Die));
     }
 }
 
 #[derive(Component, Copy, Clone, Debug, PartialEq, Eq, Reflect, FromReflect)]
 pub enum Enemy {
-    Circle,
+    Bomb,
 }
 
 #[derive(Clone, Debug)]

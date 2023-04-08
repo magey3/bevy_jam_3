@@ -1,7 +1,11 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, RigidBody, Velocity};
 
-use crate::{health::DamageEvent, mouse_position::MousePosition, player::Player};
+use crate::{
+    health::DamageEvent, lifetime::Lifetime, mouse_position::MousePosition, player::Player,
+};
 
 use super::{cooldown::AbilityCooldown, AbilitySet, Loadout, Power, UseAbilityEvent};
 
@@ -67,6 +71,7 @@ fn shoot(
                     ..Default::default()
                 },
                 ActiveEvents::COLLISION_EVENTS,
+                Lifetime::new(Duration::from_secs(2)),
             ));
         }
     }

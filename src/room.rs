@@ -1,5 +1,8 @@
+use std::iter::repeat_with;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, RigidBody};
+use bevy_turborand::{DelegatedRng, GlobalRng};
 
 use crate::{
     enemy::{Enemy, SpawnEnemyEvent},
@@ -38,6 +41,7 @@ fn spawn_rooms(
     mut commands: Commands,
     mut room_spawn_events: EventReader<SpawnRoomEvent>,
     mut spawn_enemy_events: EventWriter<SpawnEnemyEvent>,
+    mut rand: ResMut<GlobalRng>,
     arenas: Query<(), With<Arena>>,
 ) {
     for SpawnRoomEvent { room } in room_spawn_events.iter() {
@@ -79,14 +83,28 @@ fn spawn_rooms(
             ));
         }
 
-        // Spawn enemies
-        let positions = [
-            Vec2::new(-128.0, 128.0),
-            Vec2::new(128.0, 128.0),
-            Vec2::new(-128.0, -128.0),
-            Vec2::new(128.0, -128.0),
-        ];
-        for (&enemy, &translation) in room.enemies.iter().zip(&positions) {
+        const SPAWN_AREA_SIZE: f32 = 64.0;
+        const SPAWN_AREA_OFFSET: Vec2 =
+            Vec2::new(14.5 * 16.0 - SPAWN_AREA_SIZE, 8.0 * 16.0 - SPAWN_AREA_SIZE);
+
+        let random_positions = repeat_with(|| (rand.f32_normalized(), rand.f32_normalized()))
+            .map(|(x, y)| {
+                (
+                    if x < 0.0 {
+                        x * SPAWN_AREA_SIZE - SPAWN_AREA_OFFSET.x
+                    } else {
+                        x * SPAWN_AREA_SIZE + SPAWN_AREA_OFFSET.x
+                    },
+                    if y < 0.0 {
+                        y * SPAWN_AREA_SIZE - SPAWN_AREA_OFFSET.y
+                    } else {
+                        y * SPAWN_AREA_SIZE + SPAWN_AREA_OFFSET.y
+                    },
+                )
+            })
+            .map(|(x, y)| Vec2::new(x, y));
+
+        for (&enemy, translation) in room.enemies.iter().zip(random_positions) {
             spawn_enemy_events.send(SpawnEnemyEvent { enemy, translation })
         }
     }

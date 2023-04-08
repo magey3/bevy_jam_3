@@ -9,6 +9,7 @@ use leafwing_input_manager::{
 
 use crate::{
     abilities::{cooldown::AbilityCooldownTime, Loadout, Power, SideEffect, UseAbilityEvent},
+    assets::GameAssets,
     health::{Health, MaxHealth},
     state::GameState,
 };
@@ -20,7 +21,7 @@ impl Plugin for PlayerPlugin {
         app.register_type::<Player>()
             .add_plugin(InputManagerPlugin::<PlayerActions>::default())
             .add_systems(
-                (select_ability, use_ability, move_player)
+                (select_ability, use_ability, move_player, rotate_sprite)
                     .chain()
                     .in_set(OnUpdate(GameState::Playing)),
             )
@@ -45,7 +46,7 @@ enum PlayerActions {
 #[reflect(Component, Default, Debug)]
 pub struct Player;
 
-fn spawn_player(mut commands: Commands) {
+fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let ability = commands
         .spawn((
             Power::Teleport,
@@ -91,10 +92,10 @@ fn spawn_player(mut commands: Commands) {
         Player,
         SpriteBundle {
             sprite: Sprite {
-                color: Color::WHITE,
                 custom_size: Some(Vec2::splat(16.0)),
                 ..Default::default()
             },
+            texture: assets.player.clone(),
             transform: Transform::from_xyz(0.0, 0.0, 1.0),
             ..Default::default()
         },
@@ -112,7 +113,7 @@ fn spawn_player(mut commands: Commands) {
         Loadout {
             abilities: vec![ability, ability2, ability3, ability4],
         },
-        Collider::cuboid(8.0, 8.0),
+        Collider::ball(8.0),
         ExternalForce::default(),
         ExternalImpulse::default(),
         Health(100.0),
@@ -176,5 +177,12 @@ fn use_ability(
                 ability: current_ability.0,
             });
         }
+    }
+}
+
+fn rotate_sprite(mut players: Query<(&Velocity, &mut Transform), With<Player>>) {
+    for (velocity, mut transform) in &mut players {
+        transform.rotation =
+            Quat::from_rotation_arc_2d(Vec2::X, velocity.linvel.try_normalize().unwrap_or(Vec2::X));
     }
 }

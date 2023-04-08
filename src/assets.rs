@@ -15,11 +15,13 @@ impl Plugin for AssetsPlugin {
 #[reflect(Resource, Default, Debug)]
 pub struct GameAssets {
     pub bomb: Handle<Image>,
+    pub player: Handle<Image>,
 }
 
 fn start_loading_assets(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(GameAssets {
         bomb: asset_server.load("bomb.png"),
+        player: asset_server.load("rat.png"),
     });
 }
 
@@ -28,7 +30,7 @@ fn on_assets_loaded(
     assets: Res<GameAssets>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    let assets = [assets.bomb.id()];
+    let assets = [assets.bomb.id(), assets.player.id()];
     if asset_server.get_group_load_state(assets) == LoadState::Loaded {
         next_state.set(GameState::Playing);
         info!("Loaded all assets");

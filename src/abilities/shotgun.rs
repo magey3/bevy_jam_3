@@ -19,7 +19,7 @@ impl Plugin for ShotgunPlugin {
 }
 
 const BULLET_VELOCITY: f32 = 512.0;
-const BULLET_DAMAGE: f32 = 50.0;
+const BULLET_DAMAGE: f32 = 15.0;
 const SPREAD: f32 = 5.0;
 
 #[derive(Component, Clone, Debug, Default, Reflect, FromReflect)]

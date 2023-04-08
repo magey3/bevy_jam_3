@@ -4,7 +4,10 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_turborand::{DelegatedRng, GlobalRng};
 
-use crate::{health::DamageEvent, lifetime::Lifetime};
+use crate::{
+    health::{DamageEvent, Health},
+    lifetime::Lifetime,
+};
 
 pub struct ExplosionPlugin;
 
@@ -61,7 +64,7 @@ fn apply_explosion_forces(
 fn apply_explostion_damage(
     mut explosion_events: EventReader<ExplosionEvent>,
     mut damage_events: EventWriter<DamageEvent>,
-    mut objects: Query<(Entity, &Transform)>,
+    mut objects: Query<(Entity, &Transform), With<Health>>,
 ) {
     for explosion in explosion_events.iter() {
         for (object_id, object_transform) in &mut objects {
@@ -72,7 +75,7 @@ fn apply_explostion_damage(
                 continue;
             }
 
-            let object_distance_normalized = object_distance / explosion.range;
+            let object_distance_normalized = 1.0 - (object_distance / explosion.range);
 
             damage_events.send(DamageEvent {
                 damage: explosion.damage * object_distance_normalized,

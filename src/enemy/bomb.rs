@@ -6,6 +6,7 @@ use bevy_rapier2d::prelude::{
 };
 
 use crate::{
+    assets::GameAssets,
     explosion::{ExplosionEvent, HandleExplosionSet},
     health::{Health, MaxHealth},
     player::Player,
@@ -78,18 +79,28 @@ fn spawn_bomb(
     mut spawn_enemy_events: EventReader<SpawnEnemyEvent>,
     circle_mesh: Res<BombMesh>,
     circle_material: Res<BombMaterial>,
+    assets: Res<GameAssets>,
 ) {
     for SpawnEnemyEvent { enemy, translation } in spawn_enemy_events.iter() {
         if *enemy == Enemy::Bomb {
             commands.spawn((
                 Enemy::Bomb,
                 Bomb,
-                ColorMesh2dBundle {
+                SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::splat(16.0)),
+                        ..Default::default()
+                    },
+                    texture: assets.bomb.clone(),
                     transform: Transform::from_translation(translation.extend(1.0)),
-                    mesh: circle_mesh.0.clone().into(),
-                    material: circle_material.default.clone(),
                     ..Default::default()
                 },
+                //ColorMesh2dBundle {
+                //    transform: Transform::from_translation(translation.extend(1.0)),
+                //    mesh: circle_mesh.0.clone().into(),
+                //    material: circle_material.default.clone(),
+                //    ..Default::default()
+                //},
                 RigidBody::Dynamic,
                 LockedAxes::ROTATION_LOCKED,
                 Velocity::default(),

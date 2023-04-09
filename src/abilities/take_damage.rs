@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{health::Health, player::Player};
+use crate::{health::DamageEvent, player::Player};
 
 use super::{
     cooldown::AbilityCooldown, heat::Overheated, AbilitySet, Loadout, SideEffect, UseAbilityEvent,
@@ -14,11 +14,14 @@ impl Plugin for TakeDamageSideEffectPlugin {
     }
 }
 
+const DAMAGE: f32 = 5.0;
+
 fn take_damage(
-    mut player_healths: Query<&mut Health, With<Player>>,
+    player: Query<Entity, With<Player>>,
     loadouts: Query<&Loadout, Without<Overheated>>,
     mut ability_events: EventReader<UseAbilityEvent>,
     side_effects: Query<&SideEffect, Without<AbilityCooldown>>,
+    mut damage_events: EventWriter<DamageEvent>,
 ) {
     for ability in ability_events.iter() {
         let Ok(loadout) = loadouts.get(ability.loadout) else {
@@ -31,8 +34,9 @@ fn take_damage(
             continue;
         }
 
-        for mut health in &mut player_healths {
-            health.0 -= 10.0;
-        }
+        damage_events.send(DamageEvent {
+            damaged_id: player.single(),
+            damage: DAMAGE,
+        })
     }
 }

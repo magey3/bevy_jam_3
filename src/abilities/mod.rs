@@ -8,12 +8,12 @@ use self::{
 pub struct AbilitiesPlugin;
 
 pub mod cooldown;
-mod fireball;
+pub mod fireball;
 pub mod heat;
-mod shotgun;
-mod take_damage;
-mod teleport;
-mod wall;
+pub mod shotgun;
+pub mod take_damage;
+pub mod teleport;
+pub mod wall;
 
 #[derive(SystemSet, Clone, Debug, Default, Hash, PartialEq, Eq)]
 pub struct AbilitySet;

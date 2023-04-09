@@ -6,6 +6,7 @@ use bevy::{
     prelude::*,
     window::{PresentMode, WindowMode},
 };
+use bevy_kira_audio::AudioPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 use bevy_turborand::RngPlugin;
 use enemy::EnemyPlugin;
@@ -58,6 +59,7 @@ fn main() {
         })
         .add_plugin(GlobalStatePlugin)
         .add_plugin(RngPlugin::default())
+        .add_plugin(AudioPlugin)
         .add_plugin(InitPlugin)
         .add_plugin(AssetsPlugin)
         .add_plugin(PlayerPlugin)

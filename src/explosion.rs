@@ -1,10 +1,12 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::ExternalImpulse;
 use bevy_turborand::{DelegatedRng, GlobalRng};
 
 use crate::{
+    assets::GameAssets,
     health::{DamageEvent, Health},
     lifetime::Lifetime,
 };
@@ -19,6 +21,7 @@ impl Plugin for ExplosionPlugin {
                 (
                     apply_explosion_forces,
                     apply_explostion_damage,
+                    play_audio,
                     spawn_particles,
                     move_particles,
                 )
@@ -126,5 +129,15 @@ fn spawn_particles(
 fn move_particles(mut particles: Query<(&mut Transform, &ExplosionParticle)>, time: Res<Time>) {
     for (mut particle_transform, particle) in &mut particles {
         particle_transform.translation += (particle.velocity * time.delta_seconds()).extend(0.0);
+    }
+}
+
+fn play_audio(
+    assets: Res<GameAssets>,
+    audio: Res<Audio>,
+    mut explosion_events: EventReader<ExplosionEvent>,
+) {
+    for _ in explosion_events.iter() {
+        audio.play(assets.explosion.clone());
     }
 }

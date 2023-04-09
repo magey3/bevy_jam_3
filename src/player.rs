@@ -8,7 +8,11 @@ use leafwing_input_manager::{
 };
 
 use crate::{
-    abilities::{cooldown::AbilityCooldownTime, Loadout, Power, SideEffect, UseAbilityEvent},
+    abilities::{
+        cooldown::AbilityCooldownTime,
+        heat::{AddHeatOnUse, Heat},
+        Loadout, Power, SideEffect, UseAbilityEvent,
+    },
     assets::GameAssets,
     health::{Health, MaxHealth},
     state::GameState,
@@ -59,6 +63,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
             Power::Fireball,
             SideEffect::TakeDamage,
             AbilityCooldownTime(1.0),
+            AddHeatOnUse(40.0),
         ))
         .id();
     let ability3 = commands
@@ -119,6 +124,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         Health(100.0),
         MaxHealth(100.0),
         CurrentAbility(0),
+        Heat::default(),
     ));
 }
 

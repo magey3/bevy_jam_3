@@ -4,7 +4,9 @@ use bevy::prelude::*;
 
 use crate::{explosion::ExplosionEvent, mouse_position::MousePosition};
 
-use super::{cooldown::AbilityCooldown, AbilitySet, Loadout, Power, UseAbilityEvent};
+use super::{
+    cooldown::AbilityCooldown, heat::Overheated, AbilitySet, Loadout, Power, UseAbilityEvent,
+};
 
 pub struct FireballPlugin;
 
@@ -23,14 +25,13 @@ pub struct Fireball {
 
 fn spawn_fireball(
     mut commands: Commands,
-    loadouts: Query<&Loadout>,
+    loadouts: Query<&Loadout, Without<Overheated>>,
     mut ability_events: EventReader<UseAbilityEvent>,
     mouse_position: Res<MousePosition>,
     powers: Query<&Power, Without<AbilityCooldown>>,
 ) {
     for ability in ability_events.iter() {
         let Ok(loadout) = loadouts.get(ability.loadout) else {
-            warn!("Invalid loadout in ability event");
             continue;
         };
 

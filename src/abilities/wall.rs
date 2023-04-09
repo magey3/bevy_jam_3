@@ -9,7 +9,9 @@ use crate::{
     player::{CurrentAbility, Player},
 };
 
-use super::{cooldown::AbilityCooldown, AbilitySet, Loadout, Power, UseAbilityEvent};
+use super::{
+    cooldown::AbilityCooldown, heat::Overheated, AbilitySet, Loadout, Power, UseAbilityEvent,
+};
 
 pub struct WallPowerPlugin;
 
@@ -30,14 +32,13 @@ const MAX_ICEWALL_CAST_DISTANCE: f32 = 64.0;
 fn spawn_icewall(
     mut commands: Commands,
     player: Query<&Transform, With<Player>>,
-    loadouts: Query<&Loadout>,
+    loadouts: Query<&Loadout, Without<Overheated>>,
     mut ability_events: EventReader<UseAbilityEvent>,
     mouse_position: Res<MousePosition>,
     powers: Query<&Power, Without<AbilityCooldown>>,
 ) {
     for ability in ability_events.iter() {
         let Ok(loadout) = loadouts.get(ability.loadout) else {
-            warn!("Invalid loadout in ability event");
             continue;
         };
 

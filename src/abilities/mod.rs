@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use self::{
-    cooldown::CooldownPlugin, fireball::FireballPlugin, shotgun::ShotgunPlugin,
+    cooldown::CooldownPlugin, fireball::FireballPlugin, heat::HeatPlugin, shotgun::ShotgunPlugin,
     take_damage::TakeDamageSideEffectPlugin, teleport::TeleportPowerPlugin, wall::WallPowerPlugin,
 };
 
@@ -9,6 +9,7 @@ pub struct AbilitiesPlugin;
 
 pub mod cooldown;
 mod fireball;
+pub mod heat;
 mod shotgun;
 mod take_damage;
 mod teleport;
@@ -28,6 +29,7 @@ impl Plugin for AbilitiesPlugin {
             .add_plugin(FireballPlugin)
             .add_plugin(WallPowerPlugin)
             .add_plugin(ShotgunPlugin)
+            .add_plugin(HeatPlugin)
             .add_plugin(TakeDamageSideEffectPlugin);
     }
 }

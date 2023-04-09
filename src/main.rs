@@ -1,6 +1,7 @@
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
 use abilities::AbilitiesPlugin;
+use ability_ui::AbilityUiPlugin;
 use assets::AssetsPlugin;
 use bevy::{
     prelude::*,
@@ -24,6 +25,7 @@ use room_manager::RoomManagerPlugin;
 use state::GlobalStatePlugin;
 
 pub mod abilities;
+pub mod ability_ui;
 pub mod assets;
 pub mod death_screen;
 pub mod enemy;
@@ -78,5 +80,6 @@ fn main() {
         .add_plugin(RoomManagerPlugin)
         .add_plugin(DeathScreenPlugin)
         .add_plugin(MainMenuPlugin)
+        .add_plugin(AbilityUiPlugin)
         .run();
 }

@@ -1,0 +1,1 @@
+This font is licensed under the SIL Open Font License 1.1 ([LICENSE](LICENSE) or [https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web)).

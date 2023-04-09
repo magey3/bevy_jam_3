@@ -9,6 +9,7 @@ use bevy::{
 use bevy_kira_audio::AudioPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 use bevy_turborand::RngPlugin;
+use death_screen::DeathScreenPlugin;
 use enemy::EnemyPlugin;
 use explosion::ExplosionPlugin;
 use health::HealthPlugin;
@@ -23,6 +24,7 @@ use state::GlobalStatePlugin;
 
 pub mod abilities;
 pub mod assets;
+pub mod death_screen;
 pub mod enemy;
 pub mod explosion;
 pub mod health;
@@ -72,5 +74,6 @@ fn main() {
         .add_plugin(LifetimePlugin)
         .add_plugin(HealthBarPlugin)
         .add_plugin(RoomManagerPlugin)
+        .add_plugin(DeathScreenPlugin)
         .run();
 }

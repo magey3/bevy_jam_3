@@ -5,6 +5,7 @@ pub enum GameState {
     #[default]
     Loading,
     Playing,
+    DeathScreen,
 }
 
 pub struct GlobalStatePlugin;

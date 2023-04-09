@@ -15,7 +15,7 @@ use crate::{
     },
     assets::GameAssets,
     enemy::Target,
-    health::{Health, MaxHealth},
+    health::{DeathEvent, Health, MaxHealth},
     state::GameState,
 };
 
@@ -25,11 +25,13 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
             .add_plugin(InputManagerPlugin::<PlayerActions>::default())
+            .add_system(on_death.in_set(OnUpdate(GameState::Playing)))
             .add_systems(
                 (select_ability, use_ability, move_player, rotate_sprite)
                     .chain()
                     .in_set(OnUpdate(GameState::Playing)),
             )
+            .add_system(cleanup.in_schedule(OnExit(GameState::Playing)))
             .add_system(spawn_player.in_schedule(OnEnter(GameState::Playing)));
     }
 }
@@ -193,5 +195,23 @@ fn rotate_sprite(mut players: Query<(&Velocity, &mut Transform), With<Player>>) 
     for (velocity, mut transform) in &mut players {
         transform.rotation =
             Quat::from_rotation_arc_2d(Vec2::X, velocity.linvel.try_normalize().unwrap_or(Vec2::X));
+    }
+}
+
+fn on_death(
+    player: Query<(), With<Player>>,
+    mut death_events: EventReader<DeathEvent>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    for event in death_events.iter() {
+        if player.get(event.died_id).is_ok() {
+            next_state.set(GameState::DeathScreen);
+        }
+    }
+}
+
+fn cleanup(mut commands: Commands, player: Query<Entity, With<Player>>) {
+    for e in &player {
+        commands.entity(e).despawn_recursive();
     }
 }

@@ -18,7 +18,8 @@ impl Plugin for RoomPlugin {
             .register_type::<RoomClearedEvent>()
             .add_event::<SpawnRoomEvent>()
             .add_event::<RoomClearedEvent>()
-            .add_systems((spawn_rooms, check_room_cleared).in_set(OnUpdate(GameState::Playing)));
+            .add_systems((spawn_rooms, check_room_cleared).in_set(OnUpdate(GameState::Playing)))
+            .add_system(cleanup_room.in_schedule(OnExit(GameState::Playing)));
     }
 }
 
@@ -114,13 +115,22 @@ fn spawn_rooms(
 pub struct RoomClearedEvent;
 
 fn check_room_cleared(
+    rooms: Query<(), With<Arena>>,
     mut last_enemy_count: Local<usize>,
     enemies: Query<(), With<Enemy>>,
     mut room_clear_events: EventWriter<RoomClearedEvent>,
 ) {
-    let enemy_count = enemies.iter().len();
-    if enemy_count == 0 && enemy_count != *last_enemy_count {
-        room_clear_events.send_default();
+    for _ in &rooms {
+        let enemy_count = enemies.iter().len();
+        if enemy_count == 0 && enemy_count != *last_enemy_count {
+            room_clear_events.send_default();
+        }
+        *last_enemy_count = enemy_count;
     }
-    *last_enemy_count = enemy_count;
+}
+
+fn cleanup_room(mut commands: Commands, to_despawn: Query<Entity, Or<(With<Enemy>, With<Arena>)>>) {
+    for e in &to_despawn {
+        commands.entity(e).despawn_recursive();
+    }
 }

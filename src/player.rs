@@ -62,7 +62,6 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let ability2 = commands
         .spawn((
             Power::Fireball,
-            SideEffect::TakeDamage,
             AbilityCooldownTime(1.0),
             AddHeatOnUse(40.0),
         ))

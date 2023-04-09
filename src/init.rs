@@ -1,4 +1,4 @@
-use bevy::{prelude::*, render::camera::ScalingMode};
+use bevy::prelude::*;
 
 pub struct InitPlugin;
 
@@ -18,7 +18,10 @@ fn spawn_camera(mut commands: Commands) {
         MainCamera,
         Camera2dBundle {
             projection: OrthographicProjection {
-                scaling_mode: ScalingMode::WindowSize(4.0),
+                #[cfg(target_family = "wasm")]
+                scale: 1.0 / 2.6,
+                #[cfg(not(target_family = "wasm"))]
+                scale: 1.0 / 4.0,
                 ..Default::default()
             },
             ..Default::default()

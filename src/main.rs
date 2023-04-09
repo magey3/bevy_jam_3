@@ -40,10 +40,11 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
+                        #[cfg(not(target_family = "wasm"))]
                         present_mode: PresentMode::AutoNoVsync,
+                        #[cfg(not(target_family = "wasm"))]
                         mode: WindowMode::BorderlessFullscreen,
                         title: "Temp Name".into(),
-                        resizable: false,
                         ..Default::default()
                     }),
                     ..Default::default()

@@ -5,7 +5,10 @@ use bevy_rapier2d::prelude::{
     Collider, Damping, ExternalForce, ExternalImpulse, LockedAxes, RigidBody, Velocity,
 };
 
-use crate::health::{DamageEvent, Health, MaxHealth};
+use crate::{
+    assets::GameAssets,
+    health::{DamageEvent, Health, MaxHealth},
+};
 
 use super::{Enemy, EnemySet, SpawnEnemyEvent, Target};
 
@@ -24,7 +27,8 @@ impl Plugin for CatPlugin {
                 )
                     .chain()
                     .in_set(EnemySet::AI),
-            );
+            )
+            .add_system(rotate_sprite);
     }
 }
 
@@ -42,7 +46,11 @@ pub enum CatState {
     JumpingFromTarget,
 }
 
-fn spawn_cat(mut commands: Commands, mut spawn_enemy_events: EventReader<SpawnEnemyEvent>) {
+fn spawn_cat(
+    mut commands: Commands,
+    mut spawn_enemy_events: EventReader<SpawnEnemyEvent>,
+    assets: Res<GameAssets>,
+) {
     for SpawnEnemyEvent { enemy, translation } in spawn_enemy_events.iter() {
         if *enemy == Enemy::Bomb {
             commands.spawn((
@@ -51,10 +59,10 @@ fn spawn_cat(mut commands: Commands, mut spawn_enemy_events: EventReader<SpawnEn
                 CatState::default(),
                 SpriteBundle {
                     sprite: Sprite {
-                        color: Color::RED,
                         custom_size: Some(Vec2::splat(16.0)),
                         ..Default::default()
                     },
+                    texture: assets.cat.clone(),
                     transform: Transform::from_translation(translation.extend(1.0)),
                     ..Default::default()
                 },
@@ -228,5 +236,12 @@ fn cat_attacking(
             *cat_state = CatState::JumpingFromTarget;
             commands.entity(cat_id).remove::<AttackTimeout>();
         }
+    }
+}
+
+fn rotate_sprite(mut players: Query<(&Velocity, &mut Transform), With<Cat>>) {
+    for (velocity, mut transform) in &mut players {
+        transform.rotation =
+            Quat::from_rotation_arc_2d(Vec2::X, velocity.linvel.try_normalize().unwrap_or(Vec2::X));
     }
 }

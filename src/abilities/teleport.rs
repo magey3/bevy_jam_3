@@ -10,9 +10,12 @@ pub struct TeleportPowerPlugin;
 
 impl Plugin for TeleportPowerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(handle_teleport.in_set(AbilitySet));
+        app.add_system(handle_teleport.in_set(AbilitySet).in_set(TeleportSet));
     }
 }
+
+#[derive(SystemSet, Clone, Debug, Default, Hash, PartialEq, Eq)]
+pub struct TeleportSet;
 
 const TELEPORT_DISTANCE: f32 = 64.0;
 

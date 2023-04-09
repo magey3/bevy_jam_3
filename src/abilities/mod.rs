@@ -2,8 +2,8 @@ use bevy::prelude::*;
 
 use self::{
     cool_zone::CoolZonePlugin, cooldown::CooldownPlugin, fireball::FireballPlugin,
-    heat::HeatPlugin, shotgun::ShotgunPlugin, take_damage::TakeDamageSideEffectPlugin,
-    teleport::TeleportPowerPlugin, wall::WallPowerPlugin,
+    heat::HeatPlugin, invisibility::InvisibilityWithShadowPlugin, shotgun::ShotgunPlugin,
+    take_damage::TakeDamageSideEffectPlugin, teleport::TeleportPowerPlugin, wall::WallPowerPlugin,
 };
 
 pub struct AbilitiesPlugin;
@@ -12,6 +12,7 @@ pub mod cool_zone;
 pub mod cooldown;
 pub mod fireball;
 pub mod heat;
+pub mod invisibility;
 pub mod shotgun;
 pub mod take_damage;
 pub mod teleport;
@@ -33,6 +34,7 @@ impl Plugin for AbilitiesPlugin {
             .add_plugin(ShotgunPlugin)
             .add_plugin(HeatPlugin)
             .add_plugin(TakeDamageSideEffectPlugin)
+            .add_plugin(InvisibilityWithShadowPlugin)
             .add_plugin(CoolZonePlugin);
     }
 }
@@ -53,6 +55,7 @@ pub enum SideEffect {
     #[default]
     TakeDamage,
     CoolZone,
+    InvisibleWithShadow,
 }
 
 #[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]

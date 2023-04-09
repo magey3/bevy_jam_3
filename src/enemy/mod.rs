@@ -11,11 +11,16 @@ pub mod bomb;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Enemy>()
+            .register_type::<Target>()
             .add_event::<SpawnEnemyEvent>()
             .add_plugin(BombPlugin)
             .add_system(on_enemy_death.in_set(EnemySet::Die));
     }
 }
+
+#[derive(Component, Clone, Default, Debug, Reflect, FromReflect)]
+#[reflect(Component, Default, Debug)]
+pub struct Target;
 
 #[derive(Component, Copy, Clone, Debug, PartialEq, Eq, Reflect, FromReflect)]
 pub enum Enemy {

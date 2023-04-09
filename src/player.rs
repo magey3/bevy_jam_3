@@ -14,6 +14,7 @@ use crate::{
         Loadout, Power, SideEffect, UseAbilityEvent,
     },
     assets::GameAssets,
+    enemy::Target,
     health::{Health, MaxHealth},
     state::GameState,
 };
@@ -54,8 +55,8 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     let ability = commands
         .spawn((
             Power::Teleport,
-            SideEffect::TakeDamage,
-            AbilityCooldownTime(1.0),
+            SideEffect::InvisibleWithShadow,
+            AbilityCooldownTime(5.0),
         ))
         .id();
     let ability2 = commands
@@ -94,16 +95,19 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
     input_map.insert(MouseButton::Left, PlayerActions::UseAbility);
 
     commands.spawn((
-        Player,
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::splat(16.0)),
+        (
+            Player,
+            Target,
+            SpriteBundle {
+                sprite: Sprite {
+                    custom_size: Some(Vec2::splat(16.0)),
+                    ..Default::default()
+                },
+                texture: assets.player.clone(),
+                transform: Transform::from_xyz(0.0, 0.0, 1.0),
                 ..Default::default()
             },
-            texture: assets.player.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 1.0),
-            ..Default::default()
-        },
+        ),
         InputManagerBundle::<PlayerActions> {
             input_map,
             ..Default::default()

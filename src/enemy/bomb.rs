@@ -9,10 +9,9 @@ use crate::{
     assets::GameAssets,
     explosion::{ExplosionEvent, HandleExplosionSet},
     health::{Health, MaxHealth},
-    player::Player,
 };
 
-use super::{Enemy, EnemySet, SpawnEnemyEvent};
+use super::{Enemy, EnemySet, SpawnEnemyEvent, Target};
 
 pub(super) struct BombPlugin;
 
@@ -30,7 +29,7 @@ impl Plugin for BombPlugin {
             )
             .add_systems((
                 spawn_bomb.in_set(EnemySet::SpawnEnemies),
-                follow_player.in_set(EnemySet::AI),
+                follow_target.in_set(EnemySet::AI),
             ));
     }
 }
@@ -78,9 +77,9 @@ fn spawn_bomb(
     }
 }
 
-fn follow_player(
+fn follow_target(
     mut circles: Query<(&mut ExternalForce, &Transform), With<Bomb>>,
-    player: Query<&Transform, With<Player>>,
+    player: Query<&Transform, With<Target>>,
 ) {
     for (mut circle_force, circle_transform) in &mut circles {
         let Ok(player_transform) = player.get_single() else { return; };
@@ -101,7 +100,7 @@ struct CircleExplosionTimer(pub Timer);
 fn insert_explosion_timers(
     mut commands: Commands,
     circles: Query<(Entity, &Transform), (Without<CircleExplosionTimer>, With<Bomb>)>,
-    player: Query<&Transform, With<Player>>,
+    player: Query<&Transform, With<Target>>,
 ) {
     for (circle_entity, circle_transform) in &circles {
         let Ok(player_transform) = player.get_single() else { return; };

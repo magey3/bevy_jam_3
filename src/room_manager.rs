@@ -3,6 +3,8 @@ use bevy_turborand::{DelegatedRng, GlobalRng};
 
 use crate::{
     enemy::Enemy,
+    health::{Health, MaxHealth},
+    player::Player,
     room::{Room, RoomClearedEvent, SpawnRoomEvent},
     state::GameState,
 };
@@ -14,7 +16,7 @@ impl Plugin for RoomManagerPlugin {
         app.register_type::<CurrentRoom>()
             .init_resource::<CurrentRoom>()
             .add_system(init.in_schedule(OnEnter(GameState::Playing)))
-            .add_system(room_loop);
+            .add_systems((room_loop, heal_player));
     }
 }
 
@@ -54,5 +56,15 @@ fn room_loop(
             room: Room { enemies },
         });
         info!("Switched to room {}", current_room.0);
+    }
+}
+
+fn heal_player(
+    mut player: Query<(&mut Health, &MaxHealth), With<Player>>,
+    mut room_cleared_events: EventReader<RoomClearedEvent>,
+) {
+    for _ in room_cleared_events.iter() {
+        let (mut health, max_health) = player.single_mut();
+        **health = **max_health;
     }
 }

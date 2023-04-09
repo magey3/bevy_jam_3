@@ -39,7 +39,7 @@ fn room_loop(
     for _ in room_cleared_events.iter() {
         current_room.0 += 1;
 
-        let enemy_options = [(Enemy::Bomb, 1.0)];
+        let enemy_options = [(Enemy::Bomb, 1.0), (Enemy::Cat, 2.0)];
 
         let mut room_difficulty = current_room.0 as f32 + 3.0 + rng.f32_normalized() * 2.0;
 

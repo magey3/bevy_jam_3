@@ -2,11 +2,12 @@ use bevy::prelude::*;
 
 use crate::health::DeathEvent;
 
-use self::bomb::BombPlugin;
+use self::{bomb::BombPlugin, cat::CatPlugin};
 
 pub struct EnemyPlugin;
 
 pub mod bomb;
+pub mod cat;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
@@ -14,6 +15,7 @@ impl Plugin for EnemyPlugin {
             .register_type::<Target>()
             .add_event::<SpawnEnemyEvent>()
             .add_plugin(BombPlugin)
+            .add_plugin(CatPlugin)
             .add_system(on_enemy_death.in_set(EnemySet::Die));
     }
 }
@@ -25,6 +27,7 @@ pub struct Target;
 #[derive(Component, Copy, Clone, Debug, PartialEq, Eq, Reflect, FromReflect)]
 pub enum Enemy {
     Bomb,
+    Cat,
 }
 
 #[derive(Clone, Debug)]

@@ -1,1 +1,3 @@
 /target
+wasm/labrat.js
+wasm/labrat_bg.wasm

@@ -113,7 +113,8 @@ fn move_ghost(
     mut ghosts: Query<&mut Transform, (With<IceWallGhost>, Without<Player>)>,
 ) {
     for mut ghost_transform in &mut ghosts {
-        let player_position = player.single().translation.truncate();
+        let Ok(player_transform) = player.get_single() else { return; };
+        let player_position = player_transform.translation.truncate();
 
         let delta =
             (**mouse_position - player_position).clamp_length_max(MAX_ICEWALL_CAST_DISTANCE);

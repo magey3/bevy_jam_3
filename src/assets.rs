@@ -45,7 +45,7 @@ fn on_assets_loaded(
         assets.font_normal.id(),
     ];
     if asset_server.get_group_load_state(assets) == LoadState::Loaded {
-        next_state.set(GameState::Playing);
+        next_state.set(GameState::MainMenu);
         info!("Loaded all assets");
     }
 }

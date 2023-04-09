@@ -16,6 +16,7 @@ use health::HealthPlugin;
 use healthbar::HealthBarPlugin;
 use init::InitPlugin;
 use lifetime::LifetimePlugin;
+use main_menu::MainMenuPlugin;
 use mouse_position::MousePositionPlugin;
 use player::PlayerPlugin;
 use room::RoomPlugin;
@@ -31,6 +32,7 @@ pub mod health;
 pub mod healthbar;
 pub mod init;
 pub mod lifetime;
+pub mod main_menu;
 pub mod mouse_position;
 pub mod player;
 pub mod room;
@@ -75,5 +77,6 @@ fn main() {
         .add_plugin(HealthBarPlugin)
         .add_plugin(RoomManagerPlugin)
         .add_plugin(DeathScreenPlugin)
+        .add_plugin(MainMenuPlugin)
         .run();
 }

@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::{explosion::ExplosionEvent, mouse_position::MousePosition};
+use crate::{
+    explosion::{ExplosionEvent, HandleExplosionSet},
+    mouse_position::MousePosition,
+};
 
 use super::{
     cooldown::AbilityCooldown, heat::Overheated, AbilitySet, Loadout, Power, UseAbilityEvent,
@@ -12,8 +15,11 @@ pub struct FireballPlugin;
 
 impl Plugin for FireballPlugin {
     fn build(&self, app: &mut App) {
-        app.register_type::<Fireball>()
-            .add_systems((spawn_fireball, handle_fireball_explosion).in_set(AbilitySet));
+        app.register_type::<Fireball>().add_systems(
+            (spawn_fireball, handle_fireball_explosion)
+                .in_set(AbilitySet)
+                .before(HandleExplosionSet),
+        );
     }
 }
 

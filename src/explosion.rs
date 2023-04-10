@@ -165,7 +165,6 @@ fn add_shake(
             let strength = explosion.force * player_distance_normalized / 16.0;
 
             camera.single_mut().amount += strength;
-            info!("SHAKEN {strength}");
         }
     }
 }

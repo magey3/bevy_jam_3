@@ -20,17 +20,20 @@ pub struct HeatUiSlider;
 
 fn spawn_heat_ui(mut commands: Commands) {
     commands
-        .spawn(NodeBundle {
-            style: Style {
-                position: UiRect::new(Val::Auto, Val::Px(20.0), Val::Px(20.0), Val::Auto),
-                position_type: PositionType::Absolute,
-                padding: UiRect::all(Val::Px(10.0)),
-                size: Size::new(Val::Px(400.0), Val::Px(64.0)),
+        .spawn((
+            HeatUi,
+            NodeBundle {
+                style: Style {
+                    position: UiRect::new(Val::Auto, Val::Px(20.0), Val::Px(20.0), Val::Auto),
+                    position_type: PositionType::Absolute,
+                    padding: UiRect::all(Val::Px(10.0)),
+                    size: Size::new(Val::Px(400.0), Val::Px(64.0)),
+                    ..Default::default()
+                },
+                background_color: Color::GRAY.into(),
                 ..Default::default()
             },
-            background_color: Color::GRAY.into(),
-            ..Default::default()
-        })
+        ))
         .with_children(|parent| {
             parent
                 .spawn((

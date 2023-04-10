@@ -9,7 +9,7 @@ use leafwing_input_manager::{
 
 use crate::{
     abilities::{
-        cooldown::AbilityCooldownTime,
+        cooldown::{AbilityCooldown, AbilityCooldownTime},
         heat::{AddHeatOnUse, Heat},
         Loadout, Power, SideEffect, UseAbilityEvent,
     },
@@ -58,6 +58,8 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         .spawn((
             Power::Teleport,
             SideEffect::InvisibleWithShadow,
+            // Workaround so that it doesn't fire at the start
+            AbilityCooldown::default(),
             AbilityCooldownTime(5.0),
         ))
         .id();

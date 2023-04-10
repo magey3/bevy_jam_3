@@ -18,9 +18,21 @@ impl Plugin for RoomPlugin {
             .register_type::<RoomClearedEvent>()
             .add_event::<SpawnRoomEvent>()
             .add_event::<RoomClearedEvent>()
-            .add_systems((spawn_rooms, check_room_cleared).in_set(OnUpdate(GameState::Playing)))
+            .add_systems(
+                (
+                    check_room_cleared.in_set(RoomSet::ClearedCheck),
+                    spawn_rooms.in_set(RoomSet::Spawn),
+                )
+                    .in_set(OnUpdate(GameState::Playing)),
+            )
             .add_system(cleanup_room.in_schedule(OnExit(GameState::Playing)));
     }
+}
+
+#[derive(SystemSet, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum RoomSet {
+    ClearedCheck,
+    Spawn,
 }
 
 #[derive(Clone, Default, Debug, Reflect, FromReflect)]
@@ -116,16 +128,21 @@ pub struct RoomClearedEvent;
 
 fn check_room_cleared(
     rooms: Query<(), With<Arena>>,
-    mut last_enemy_count: Local<usize>,
     enemies: Query<(), With<Enemy>>,
+    mut cleared: Local<bool>,
     mut room_clear_events: EventWriter<RoomClearedEvent>,
+    mut room_spawn_events: EventReader<SpawnRoomEvent>,
 ) {
     for _ in &rooms {
         let enemy_count = enemies.iter().len();
-        if enemy_count == 0 && enemy_count != *last_enemy_count {
+        if enemy_count == 0 && !*cleared {
             room_clear_events.send_default();
+            *cleared = true;
         }
-        *last_enemy_count = enemy_count;
+    }
+
+    for _ in room_spawn_events.iter() {
+        *cleared = false;
     }
 }
 

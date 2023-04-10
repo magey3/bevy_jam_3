@@ -5,7 +5,7 @@ use crate::{
     enemy::Enemy,
     health::{Health, MaxHealth},
     player::Player,
-    room::{Room, RoomClearedEvent, SpawnRoomEvent},
+    room::{Room, RoomClearedEvent, RoomSet, SpawnRoomEvent},
     state::GameState,
 };
 
@@ -16,7 +16,11 @@ impl Plugin for RoomManagerPlugin {
         app.register_type::<CurrentRoom>()
             .init_resource::<CurrentRoom>()
             .add_system(init.in_schedule(OnEnter(GameState::Playing)))
-            .add_systems((room_loop, heal_player));
+            .add_systems(
+                (room_loop, heal_player)
+                    .after(RoomSet::ClearedCheck)
+                    .before(RoomSet::Spawn),
+            );
     }
 }
 
@@ -45,6 +49,10 @@ fn room_loop(
 
         let mut room_difficulty = current_room.0 as f32 + 3.0 + rng.f32_normalized() * 2.0;
 
+        info!(
+            "Switched to room {}, difficulty = {}",
+            current_room.0, room_difficulty
+        );
         let mut enemies = Vec::new();
         while room_difficulty > 0.0 {
             let option = rng.sample(&enemy_options).unwrap();
@@ -55,7 +63,6 @@ fn room_loop(
         events.send(SpawnRoomEvent {
             room: Room { enemies },
         });
-        info!("Switched to room {}", current_room.0);
     }
 }
 

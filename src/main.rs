@@ -3,11 +3,11 @@
 use abilities::AbilitiesPlugin;
 use ability_ui::AbilityUiPlugin;
 use assets::AssetsPlugin;
+use audio::AudioPlugin;
 use bevy::{
     prelude::*,
     window::{PresentMode, WindowMode},
 };
-use bevy_kira_audio::AudioPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierConfiguration, RapierPhysicsPlugin};
 use bevy_turborand::RngPlugin;
 use death_screen::DeathScreenPlugin;
@@ -29,6 +29,7 @@ use state::GlobalStatePlugin;
 pub mod abilities;
 pub mod ability_ui;
 pub mod assets;
+pub mod audio;
 pub mod death_screen;
 pub mod enemy;
 pub mod explosion;
@@ -71,7 +72,6 @@ fn main() {
         })
         .add_plugin(GlobalStatePlugin)
         .add_plugin(RngPlugin::default())
-        .add_plugin(AudioPlugin)
         .add_plugin(InitPlugin)
         .add_plugin(AssetsPlugin)
         .add_plugin(PlayerPlugin)
@@ -89,5 +89,6 @@ fn main() {
         .add_plugin(AbilityUiPlugin)
         .add_plugin(ShakePlugin)
         .add_plugin(HeatUiPlugin)
+        .add_plugin(AudioPlugin)
         .run();
 }

@@ -74,7 +74,7 @@ fn spawn_player(mut commands: Commands, assets: Res<GameAssets>) {
         .spawn((
             Power::IceWall,
             SideEffect::CoolZone,
-            AbilityCooldownTime(1.0),
+            AbilityCooldownTime(3.0),
         ))
         .id();
     let ability4 = commands

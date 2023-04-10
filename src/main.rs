@@ -56,6 +56,8 @@ fn main() {
                         #[cfg(not(target_family = "wasm"))]
                         mode: WindowMode::BorderlessFullscreen,
                         title: "Temp Name".into(),
+                        fit_canvas_to_parent: true,
+                        prevent_default_event_handling: true,
                         ..Default::default()
                     }),
                     ..Default::default()

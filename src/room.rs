@@ -86,7 +86,7 @@ fn spawn_rooms(
 
         const SPAWN_AREA_SIZE: f32 = 64.0;
         const SPAWN_AREA_OFFSET: Vec2 =
-            Vec2::new(14.5 * 16.0 - SPAWN_AREA_SIZE, 8.0 * 16.0 - SPAWN_AREA_SIZE);
+            Vec2::new(14.0 * 16.0 - SPAWN_AREA_SIZE, 7.0 * 16.0 - SPAWN_AREA_SIZE);
 
         let random_positions = repeat_with(|| (rand.f32_normalized(), rand.f32_normalized()))
             .map(|(x, y)| {

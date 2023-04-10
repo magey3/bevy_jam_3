@@ -17,6 +17,7 @@ impl Plugin for CoolZonePlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<CoolZone>()
             .register_type::<Slowed>()
+            .add_startup_system(init_mesh)
             .add_systems(
                 (spawn_zone, cool_down, slow_movement, unslow_movement)
                     .chain()
@@ -33,12 +34,34 @@ pub struct CoolZone {
     pub radius: f32,
 }
 
+#[derive(Resource, Clone, Default, Debug, Deref, DerefMut, Reflect, FromReflect)]
+#[reflect(Resource, Default, Debug)]
+struct CircleMesh(pub Handle<Mesh>);
+
+#[derive(Resource, Clone, Default, Debug, Deref, DerefMut, Reflect, FromReflect)]
+#[reflect(Resource, Default, Debug)]
+struct CircleMaterial(pub Handle<ColorMaterial>);
+
+fn init_mesh(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    commands.insert_resource(CircleMesh(meshes.add(shape::Circle::new(64.0).into())));
+    commands.insert_resource(CircleMaterial(materials.add(ColorMaterial {
+        color: Color::CYAN.with_a(0.7),
+        ..Default::default()
+    })));
+}
+
 fn spawn_zone(
     mut commands: Commands,
     player_transform: Query<&Transform, With<Player>>,
     loadouts: Query<&Loadout, Without<Overheated>>,
     mut ability_events: EventReader<UseAbilityEvent>,
     side_effects: Query<&SideEffect, Without<AbilityCooldown>>,
+    mesh: Res<CircleMesh>,
+    material: Res<CircleMaterial>,
 ) {
     for ability in ability_events.iter() {
         let Ok(loadout) = loadouts.get(ability.loadout) else {
@@ -58,12 +81,9 @@ fn spawn_zone(
                 slowdown: 15.0,
                 radius: 64.0,
             },
-            SpriteBundle {
-                sprite: Sprite {
-                    color: Color::CYAN,
-                    custom_size: Some(Vec2::splat(64.0)),
-                    ..Default::default()
-                },
+            ColorMesh2dBundle {
+                mesh: mesh.0.clone().into(),
+                material: material.0.clone(),
                 transform: Transform::from_translation(player_position.extend(0.5)),
                 ..Default::default()
             },

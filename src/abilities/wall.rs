@@ -1,9 +1,11 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::{Collider, RigidBody};
 
 use crate::{
+    assets::GameAssets,
     lifetime::Lifetime,
     mouse_position::MousePosition,
     player::{CurrentAbility, Player},
@@ -36,6 +38,8 @@ fn spawn_icewall(
     mut ability_events: EventReader<UseAbilityEvent>,
     mouse_position: Res<MousePosition>,
     powers: Query<&Power, Without<AbilityCooldown>>,
+    audio: Res<Audio>,
+    assets: Res<GameAssets>,
 ) {
     for ability in ability_events.iter() {
         let Ok(loadout) = loadouts.get(ability.loadout) else {
@@ -72,6 +76,8 @@ fn spawn_icewall(
             RigidBody::Fixed,
             Lifetime::new(Duration::from_secs(2)),
         ));
+
+        audio.play(assets.ice_wall_sound.clone());
     }
 }
 

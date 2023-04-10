@@ -15,6 +15,7 @@ use enemy::EnemyPlugin;
 use explosion::ExplosionPlugin;
 use health::HealthPlugin;
 use healthbar::HealthBarPlugin;
+use heat_ui::HeatUiPlugin;
 use init::InitPlugin;
 use lifetime::LifetimePlugin;
 use main_menu::MainMenuPlugin;
@@ -33,6 +34,7 @@ pub mod enemy;
 pub mod explosion;
 pub mod health;
 pub mod healthbar;
+pub mod heat_ui;
 pub mod init;
 pub mod lifetime;
 pub mod main_menu;
@@ -84,5 +86,6 @@ fn main() {
         .add_plugin(MainMenuPlugin)
         .add_plugin(AbilityUiPlugin)
         .add_plugin(ShakePlugin)
+        .add_plugin(HeatUiPlugin)
         .run();
 }

@@ -1,10 +1,12 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::{ActiveEvents, Collider, CollisionEvent, RigidBody, Velocity};
 
 use crate::{
-    health::DamageEvent, lifetime::Lifetime, mouse_position::MousePosition, player::Player,
+    assets::GameAssets, health::DamageEvent, lifetime::Lifetime, mouse_position::MousePosition,
+    player::Player,
 };
 
 use super::{
@@ -35,6 +37,8 @@ fn shoot(
     mut ability_events: EventReader<UseAbilityEvent>,
     mouse_position: Res<MousePosition>,
     powers: Query<&Power, Without<AbilityCooldown>>,
+    audio: Res<Audio>,
+    assets: Res<GameAssets>,
 ) {
     for ability in ability_events.iter() {
         let Ok(loadout) = loadouts.get(ability.loadout) else {
@@ -74,6 +78,7 @@ fn shoot(
                 ActiveEvents::COLLISION_EVENTS,
                 Lifetime::new(Duration::from_secs(2)),
             ));
+            audio.play(assets.shotgun_shot.clone());
         }
     }
 }

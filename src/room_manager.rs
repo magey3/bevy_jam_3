@@ -14,22 +14,24 @@ pub struct RoomManagerPlugin;
 impl Plugin for RoomManagerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<CurrentRoom>()
-            .init_resource::<CurrentRoom>()
             .add_system(init.in_schedule(OnEnter(GameState::Playing)))
             .add_systems(
                 (room_loop, heal_player)
+                    .in_set(OnUpdate(GameState::Playing))
                     .after(RoomSet::ClearedCheck)
                     .before(RoomSet::Spawn),
             );
     }
 }
 
-fn init(mut events: EventWriter<SpawnRoomEvent>) {
+fn init(mut commands: Commands, mut events: EventWriter<SpawnRoomEvent>) {
     events.send(SpawnRoomEvent {
         room: Room {
             enemies: vec![Enemy::Bomb, Enemy::Bomb],
         },
     });
+
+    commands.insert_resource(CurrentRoom::default());
 }
 
 #[derive(Resource, Clone, Default, Debug, Reflect, FromReflect)]

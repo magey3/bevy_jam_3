@@ -1,5 +1,7 @@
 use bevy::{prelude::*, render::camera::ScalingMode};
 
+use crate::shake::Shake;
+
 pub struct InitPlugin;
 
 impl Plugin for InitPlugin {
@@ -22,6 +24,11 @@ fn spawn_camera(mut commands: Commands) {
                 ..Default::default()
             },
             ..Default::default()
+        },
+        Shake {
+            amount: 0.0,
+            max_translation: 5.0,
+            max_rotation: 2.0f32.to_radians(),
         },
     ));
 }

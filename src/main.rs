@@ -22,6 +22,7 @@ use mouse_position::MousePositionPlugin;
 use player::PlayerPlugin;
 use room::RoomPlugin;
 use room_manager::RoomManagerPlugin;
+use shake::ShakePlugin;
 use state::GlobalStatePlugin;
 
 pub mod abilities;
@@ -39,6 +40,7 @@ pub mod mouse_position;
 pub mod player;
 pub mod room;
 pub mod room_manager;
+pub mod shake;
 pub mod state;
 
 fn main() {
@@ -81,5 +83,6 @@ fn main() {
         .add_plugin(DeathScreenPlugin)
         .add_plugin(MainMenuPlugin)
         .add_plugin(AbilityUiPlugin)
+        .add_plugin(ShakePlugin)
         .run();
 }

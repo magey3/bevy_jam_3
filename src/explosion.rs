@@ -8,7 +8,10 @@ use bevy_turborand::{DelegatedRng, GlobalRng};
 use crate::{
     assets::GameAssets,
     health::{DamageEvent, Health},
+    init::MainCamera,
     lifetime::Lifetime,
+    player::Player,
+    shake::Shake,
 };
 
 pub struct ExplosionPlugin;
@@ -22,6 +25,7 @@ impl Plugin for ExplosionPlugin {
                     apply_explosion_forces,
                     apply_explostion_damage,
                     play_audio,
+                    add_shake,
                     spawn_particles,
                     move_particles,
                 )
@@ -139,5 +143,29 @@ fn play_audio(
 ) {
     for _ in explosion_events.iter() {
         audio.play(assets.explosion.clone());
+    }
+}
+
+fn add_shake(
+    mut camera: Query<&mut Shake, With<MainCamera>>,
+    mut explosion_events: EventReader<ExplosionEvent>,
+    players: Query<&Transform, With<Player>>,
+) {
+    for explosion in explosion_events.iter() {
+        for player_transform in &players {
+            let player_position = player_transform.translation.truncate();
+
+            let player_distance = player_position.distance(explosion.position);
+            if player_distance > explosion.range {
+                continue;
+            }
+
+            let player_distance_normalized = player_distance / explosion.range;
+
+            let strength = explosion.force * player_distance_normalized / 16.0;
+
+            camera.single_mut().amount += strength;
+            info!("SHAKEN {strength}");
+        }
     }
 }

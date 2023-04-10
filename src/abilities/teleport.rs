@@ -1,6 +1,7 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 
-use crate::{mouse_position::MousePosition, player::Player};
+use crate::{assets::GameAssets, mouse_position::MousePosition, player::Player};
 
 use super::{
     cooldown::AbilityCooldown, heat::Overheated, AbilitySet, Loadout, Power, UseAbilityEvent,
@@ -25,6 +26,8 @@ fn handle_teleport(
     mut ability_events: EventReader<UseAbilityEvent>,
     mouse_position: Res<MousePosition>,
     powers: Query<&Power, Without<AbilityCooldown>>,
+    audio: Res<Audio>,
+    assets: Res<GameAssets>,
 ) {
     for ability in ability_events.iter() {
         let Ok(loadout) = loadouts.get(ability.loadout) else {
@@ -43,5 +46,7 @@ fn handle_teleport(
 
             player_transform.translation += delta.extend(0.0);
         }
+
+        audio.play(assets.teleport_sound.clone());
     }
 }

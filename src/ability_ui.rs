@@ -144,7 +144,6 @@ fn set_highlight_width(
         let cooldown = cooldown.get(ability_id).unwrap();
 
         if let Some(cooldown) = cooldown {
-            info!("YEAH");
             style.size.width = Val::Px(SELECTOR_WIDTH * cooldown.percent());
         } else {
             style.size.width = Val::Px(SELECTOR_WIDTH);

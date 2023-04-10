@@ -9,6 +9,7 @@ use crate::{
     lifetime::Lifetime,
     mouse_position::MousePosition,
     player::{CurrentAbility, Player},
+    state::GameState,
 };
 
 use super::{
@@ -20,8 +21,13 @@ pub struct WallPowerPlugin;
 impl Plugin for WallPowerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<IceWall>()
-            .add_systems((show_ghost, move_ghost).chain())
-            .add_system(spawn_icewall.in_set(AbilitySet));
+            .add_systems(
+                (show_ghost, move_ghost)
+                    .chain()
+                    .in_set(OnUpdate(GameState::Playing)),
+            )
+            .add_system(spawn_icewall.in_set(AbilitySet))
+            .add_system(despawn_ghosts.in_schedule(OnExit(GameState::Playing)));
     }
 }
 
@@ -84,6 +90,12 @@ fn spawn_icewall(
 #[derive(Component, Clone, Debug, Default, Reflect, FromReflect)]
 #[reflect(Component, Debug)]
 pub struct IceWallGhost;
+
+fn despawn_ghosts(mut commands: Commands, ghosts: Query<Entity, With<IceWallGhost>>) {
+    for ghost_id in &ghosts {
+        commands.entity(ghost_id).despawn_recursive();
+    }
+}
 
 fn show_ghost(
     mut commands: Commands,
